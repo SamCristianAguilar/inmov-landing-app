@@ -50,6 +50,7 @@ import { HorizontalMenuComponent } from "./theme/components/menu/horizontal-menu
 import { VerticalMenuComponent } from "./theme/components/menu/vertical-menu/vertical-menu.component";
 import { FooterComponent } from "./theme/components/footer/footer.component";
 import { LockScreenComponent } from "./pages/lock-screen/lock-screen.component";
+import { NgxSpinnerModule } from "ngx-spinner";
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import { LockScreenComponent } from "./pages/lock-screen/lock-screen.component";
     InputFileModule.forRoot(config),
     AppRoutingModule,
     SharedModule,
+    NgxSpinnerModule,
   ],
   providers: [
     AppSettings,

@@ -1,340 +1,261 @@
 /// <reference types="@types/googlemaps" />
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
-import { MatStepper } from '@angular/material/stepper';
-import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
-import { AppService } from 'src/app/app.service';
-import { MapsAPILoader } from '@agm/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, ViewEncapsulation } from "@angular/core";
+import { MatStepper } from "@angular/material/stepper";
+import { FormGroup, FormBuilder, Validators, FormArray } from "@angular/forms";
+import { AppService } from "src/app/app.service";
+import { MapsAPILoader } from "@agm/core";
+import { tap } from "rxjs";
 
 @Component({
-  selector: 'app-submit-property',
-  templateUrl: './submit-property.component.html',
-  styleUrls: ['./submit-property.component.scss']
+  selector: "app-submit-property",
+  templateUrl: "./submit-property.component.html",
+  styleUrls: ["./submit-property.component.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class SubmitPropertyComponent implements OnInit {
-  @ViewChild('horizontalStepper') horizontalStepper: MatStepper; 
-  @ViewChild('addressAutocomplete') addressAutocomplete: ElementRef;
-  public submitForm:FormGroup; 
+  @ViewChild("horizontalStepper") horizontalStepper: MatStepper;
+  @ViewChild("addressAutocomplete") addressAutocomplete: ElementRef;
+  public submitForm: FormGroup;
   public features = [];
+  public featuresGroup = [];
+  public typeProp = "apartamento";
   public propertyTypes = [];
+  public statesProperty = [];
   public propertyStatuses = [];
   public cities = [];
   public neighborhoods = [];
   public streets = [];
   public lat: number = 40.678178;
   public lng: number = -73.944158;
-  public zoom: number = 12;  
+  public zoom: number = 12;
+  public alertPremiumMessage =
+    "Recuerde que si marca la opción prémium esto indica forma automática que usted contrata los servicios de innovación inmobiliaria para todo lo referente a la toma fotografías y videos de su propiedad que a su vez van a ser utilizadas en nuestra plataforma.";
+  private isValidEmail = /\S+@\S+\.\S+/;
+  private isNumber = /^[0-9]+$/;
+  private isOnlyLetter = "[a-zA-Z ]{2,254}";
+  private validateNumberWithDecimal = /^\s*(?=.*[1-9])\d*(?:[.,]\d{0,5})?\s*$/;
 
-  constructor(public appService:AppService, 
-              private fb: FormBuilder, 
-              private mapsAPILoader: MapsAPILoader, 
-              private ngZone: NgZone) { }
+  constructor(public appService: AppService, private fb: FormBuilder, private mapsAPILoader: MapsAPILoader, private ngZone: NgZone) {}
 
   ngOnInit() {
-    this.features = this.appService.getFeatures();  
-    this.propertyTypes = this.appService.getPropertyTypes();
     this.propertyStatuses = this.appService.getPropertyStatuses();
     this.cities = this.appService.getCities();
     this.neighborhoods = this.appService.getNeighborhoods();
-    this.streets = this.appService.getStreets();  
+    this.streets = this.appService.getStreets();
 
     this.submitForm = this.fb.group({
       basic: this.fb.group({
         title: [null, Validators.required],
-        desc: null,
-        priceDollar: null,
-        priceEuro: null,
+        desc: [null, Validators.required],
         propertyType: [null, Validators.required],
-        propertyStatus: null, 
-        gallery: null
+        premium: [null, Validators.required],
+      }),
+      infoProperty: this.fb.group({
+        price: [null, Validators.required],
+        stratum: [null, Validators.required],
+        area: [null, Validators.required],
+        rooms: [null, Validators.required],
+        baths: [null, Validators.required],
+        garages: [null, Validators.required],
+        interiorFoors: [null, Validators.required],
+        stateProperty: [null, Validators.required],
+        features: this.buildFeatures(),
       }),
       address: this.fb.group({
-        location: ['', Validators.required],
-        city: ['', Validators.required],
-        zipCode: '',
-        neighborhood: '',
-        street: ''
+        location: [""],
+        city: [""],
+        zipCode: "",
+        neighborhood: "",
+        street: "",
       }),
       additional: this.fb.group({
-        bedrooms: '',
-        bathrooms: '',
-        garages: '',
-        area: '',
-        yearBuilt: '',
-        features: this.buildFeatures()
+        bedrooms: "",
+        bathrooms: "",
+        garages: "",
+        area: "",
+        yearBuilt: "",
       }),
       media: this.fb.group({
-        videos: this.fb.array([ this.createVideo() ]),
-        plans: this.fb.array([ this.createPlan() ]), 
-        additionalFeatures: this.fb.array([ this.createFeature() ]),
-        featured: false
-      })
-    }); 
-
+        videos: this.fb.array([this.createVideo()]),
+        plans: this.fb.array([this.createPlan()]),
+        additionalFeatures: this.fb.array([this.createFeature()]),
+        featured: false,
+      }),
+    });
     this.setCurrentPosition();
-    this.placesAutocomplete();
+    this.getTypeProperty();
   }
 
+  public getTypeProperty(): any {
+    this.appService
+      .getPropertyTypes()
+      .pipe(
+        tap((res) => {
+          this.propertyTypes = res;
+        })
+      )
+      .subscribe();
+  }
 
-  public onSelectionChange(e:any){ 
-    if(e.selectedIndex == 4){   
-      this.horizontalStepper._steps.forEach(step => step.editable = false);
-      console.log(this.submitForm.value);      
+  public getStateProperty() {
+    this.appService
+      .getStateProperty()
+      .pipe(
+        tap((res) => {
+          this.statesProperty = res;
+        })
+      )
+      .subscribe();
+  }
+
+  public getFeatures(): any {
+    this.appService.getFeatures().subscribe((res) => {
+      this.features = res;
+      const featureControl = this.submitForm.controls.infoProperty.get("features") as FormArray;
+      this.features.forEach((feature) => {
+        const control = this.fb.group({
+          id: feature.id,
+          name: feature.name,
+          selected: feature.selected,
+          group: feature.group.name,
+        });
+        const groupName = feature.group.name;
+        const groupExist = this.featuresGroup.find((group) => group === groupName);
+
+        this.typeProp = this.submitForm.value.basic.propertyType.name;
+
+        if (!(this.typeProp != "Apartamento" && groupName == "apartamento")) {
+          if (!groupExist) {
+            this.featuresGroup.push(groupName);
+          }
+        }
+
+        featureControl.push(control);
+      });
+      const features: [] = this.submitForm.value.infoProperty.features;
+      const featuresTrue = features.filter((feature) => {
+        return feature["selected"] === true;
+      });
+      this.submitForm.value.infoProperty.features = featuresTrue;
+    });
+  }
+
+  public onSelectionChange(e: any) {
+    this.horizontalStepper._steps.forEach((step) => {
+      step.editable = false;
+      if (step.stepControl == this.submitForm.get("infoProperty")) {
+        this.getFeatures();
+        this.getStateProperty();
+      }
+    });
+
+    if (e.selectedIndex > 0) {
+      // this.horizontalStepper._steps.forEach((step) => (step.editable = false));
+
+      console.log(this.submitForm.value);
     }
   }
-  public reset(){
-    this.horizontalStepper.reset(); 
 
-    const videos = <FormArray>this.submitForm.controls.media.get('videos');
+  public reset() {
+    console.log("hola stepper");
+    console.log(this.submitForm.value);
+    this.horizontalStepper.reset();
+
+    const videos = <FormArray>this.submitForm.controls.media.get("videos");
     while (videos.length > 1) {
-      videos.removeAt(0)
+      videos.removeAt(0);
     }
-    const plans = <FormArray>this.submitForm.controls.media.get('plans');
+    const plans = <FormArray>this.submitForm.controls.media.get("plans");
     while (plans.length > 1) {
-      plans.removeAt(0)
+      plans.removeAt(0);
     }
-    const additionalFeatures = <FormArray>this.submitForm.controls.media.get('additionalFeatures');
+    const additionalFeatures = <FormArray>this.submitForm.controls.media.get("additionalFeatures");
     while (additionalFeatures.length > 1) {
-      additionalFeatures.removeAt(0)
+      additionalFeatures.removeAt(0);
     }
-    
+
     this.submitForm.reset({
       additional: {
-        features: this.features
+        features: this.features,
       },
-      media:{ 
-        featured: false
-      }
-    });   
-     
+      media: {
+        featured: false,
+      },
+    });
   }
 
-  
-
-  // -------------------- Address ---------------------------  
-  public onSelectCity(){
-    this.submitForm.controls.address.get('neighborhood').setValue(null, {emitEvent: false});
-    this.submitForm.controls.address.get('street').setValue(null, {emitEvent: false});
+  // -------------------- Address ---------------------------
+  public onSelectCity() {
+    this.submitForm.controls.address.get("neighborhood").setValue(null, { emitEvent: false });
+    this.submitForm.controls.address.get("street").setValue(null, { emitEvent: false });
   }
-  public onSelectNeighborhood(){
-    this.submitForm.controls.address.get('street').setValue(null, {emitEvent: false}); 
+  public onSelectNeighborhood() {
+    this.submitForm.controls.address.get("street").setValue(null, { emitEvent: false });
   }
 
   private setCurrentPosition() {
-    if("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => { 
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
         this.lat = position.coords.latitude;
-        this.lng = position.coords.longitude; 
+        this.lng = position.coords.longitude;
       });
     }
   }
-  private placesAutocomplete(){  
-    this.mapsAPILoader.load().then(() => { 
-      let autocomplete = new google.maps.places.Autocomplete(this.addressAutocomplete.nativeElement, {
-        types: ["address"]
-      });  
-      autocomplete.addListener("place_changed", () => { 
-        this.ngZone.run(() => { 
-          let place: google.maps.places.PlaceResult = autocomplete.getPlace(); 
-          if (place.geometry === undefined || place.geometry === null) {
-            return;
-          };
-          this.lat = place.geometry.location.lat();
-          this.lng = place.geometry.location.lng(); 
-          this.getAddress();
-        });
-      });
-    });
-  } 
-  
-  // public getAddress(){    
-  //   this.mapsAPILoader.load().then(() => {
-  //     let geocoder = new google.maps.Geocoder();
-  //     let latlng = new google.maps.LatLng(this.lat, this.lng); 
-  //     geocoder.geocode({'location': latlng}, (results, status) => {
-  //       if(status === google.maps.GeocoderStatus.OK) {
-  //         console.log(results); 
-  //         //this.addresstext.nativeElement.focus();  
-  //         let address = results[0].formatted_address; 
-  //         this.submitForm.controls.location.setValue(address); 
-  //         this.setAddresses(results[0]);          
-  //       }
-  //     });
-  //   });
-  // }
-  public getAddress(){    
-    this.appService.getAddress(this.lat, this.lng).subscribe(response => {  
-      console.log(response);
-      if(response['results'].length){
-        let address = response['results'][0].formatted_address; 
-        this.submitForm.controls.address.get('location').setValue(address); 
-        this.setAddresses(response['results'][0]); 
-      } 
-    })
-  }
-  public onMapClick(e:any){
-    this.lat = e.coords.lat;
-    this.lng = e.coords.lng; 
-    this.getAddress();
-  }
-  public onMarkerClick(e:any){
-    console.log(e);
-  }
-  
-  public setAddresses(result){
-    this.submitForm.controls.address.get('city').setValue(null);
-    this.submitForm.controls.address.get('zipCode').setValue(null);
-    this.submitForm.controls.address.get('street').setValue(null); 
 
-    var newCity, newStreet, newNeighborhood;
-    
-    result.address_components.forEach(item =>{
-      if(item.types.indexOf('locality') > -1){  
-        if(this.cities.filter(city => city.name == item.long_name)[0]){
-          newCity = this.cities.filter(city => city.name == item.long_name)[0];
-        }
-        else{
-          newCity = { id: this.cities.length+1, name: item.long_name };
-          this.cities.push(newCity); 
-        }
-        this.submitForm.controls.address.get('city').setValue(newCity);    
-      }
-      if(item.types.indexOf('postal_code') > -1){ 
-        this.submitForm.controls.address.get('zipCode').setValue(item.long_name);
-      }
-    });
-
-    if(!newCity){
-      result.address_components.forEach(item =>{
-        if(item.types.indexOf('administrative_area_level_1') > -1){  
-          if(this.cities.filter(city => city.name == item.long_name)[0]){
-            newCity = this.cities.filter(city => city.name == item.long_name)[0];
-          }
-          else{
-            newCity = { 
-              id: this.cities.length+1, 
-              name: item.long_name 
-            };
-            this.cities.push(newCity); 
-          }
-          this.submitForm.controls.address.get('city').setValue(newCity);    
-        } 
-      });
-    }
-
-    if(newCity){
-      result.address_components.forEach(item =>{ 
-        if(item.types.indexOf('neighborhood') > -1){ 
-          let neighborhood = this.neighborhoods.filter(n => n.name == item.long_name && n.cityId == newCity.id)[0];
-          if(neighborhood){
-            newNeighborhood = neighborhood;
-          }
-          else{
-            newNeighborhood = { 
-              id: this.neighborhoods.length+1, 
-              name: item.long_name, 
-              cityId: newCity.id 
-            };
-            this.neighborhoods.push(newNeighborhood);
-          }
-          this.neighborhoods = [...this.neighborhoods];
-          this.submitForm.controls.address.get('neighborhood').setValue([newNeighborhood]); 
-        }  
-      })
-    }
-
-    if(newCity){
-      result.address_components.forEach(item =>{            
-        if(item.types.indexOf('route') > -1){ 
-          if(this.streets.filter(street => street.name == item.long_name && street.cityId == newCity.id)[0]){
-            newStreet = this.streets.filter(street => street.name == item.long_name && street.cityId == newCity.id)[0];
-          }
-          else{
-            newStreet = { 
-              id: this.streets.length+1, 
-              name: item.long_name, 
-              cityId: newCity.id, 
-              neighborhoodId: (newNeighborhood) ? newNeighborhood.id : null 
-            };
-            this.streets.push(newStreet);
-          }          
-          this.streets = [...this.streets];
-          this.submitForm.controls.address.get('street').setValue([newStreet]); 
-        }
-      })
-    }
-
-  }
-
-
-
-   
-  // -------------------- Additional ---------------------------  
+  // -------------------- Additional ---------------------------
   public buildFeatures() {
-    const arr = this.features.map(feature => { 
+    const arr = this.features.map((feature) => {
       return this.fb.group({
         id: feature.id,
         name: feature.name,
-        selected: feature.selected
+        selected: feature.selected,
       });
-    })   
+    });
     return this.fb.array(arr);
   }
-  
 
-  
-  // -------------------- Media --------------------------- 
+  // -------------------- Media ---------------------------
   public createVideo(): FormGroup {
     return this.fb.group({
       id: null,
-      name: null, 
-      link: null 
+      name: null,
+      link: null,
     });
   }
   public addVideo(): void {
-    const videos = this.submitForm.controls.media.get('videos') as FormArray;
+    const videos = this.submitForm.controls.media.get("videos") as FormArray;
     videos.push(this.createVideo());
   }
   public deleteVideo(index) {
-    const videos = this.submitForm.controls.media.get('videos') as FormArray;
+    const videos = this.submitForm.controls.media.get("videos") as FormArray;
     videos.removeAt(index);
   }
-  
+
   public createPlan(): FormGroup {
     return this.fb.group({
       id: null,
-      name: null, 
+      name: null,
       desc: null,
       area: null,
       rooms: null,
       baths: null,
-      image: null
+      image: null,
     });
   }
-  public addPlan(): void {
-    const plans = this.submitForm.controls.media.get('plans') as FormArray;
-    plans.push(this.createPlan());
-  }
-  public deletePlan(index) {
-    const plans = this.submitForm.controls.media.get('plans') as FormArray;
-    plans.removeAt(index);
-  } 
-
 
   public createFeature(): FormGroup {
     return this.fb.group({
       id: null,
-      name: null, 
-      value: null 
+      name: null,
+      value: null,
     });
   }
   public addFeature(): void {
-    const features = this.submitForm.controls.media.get('additionalFeatures') as FormArray;
+    const features = this.submitForm.controls.media.get("additionalFeatures") as FormArray;
     features.push(this.createFeature());
   }
   public deleteFeature(index) {
-    const features = this.submitForm.controls.media.get('additionalFeatures') as FormArray;
+    const features = this.submitForm.controls.media.get("additionalFeatures") as FormArray;
     features.removeAt(index);
-  } 
-
-
+  }
 }

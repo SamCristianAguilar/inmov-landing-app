@@ -37,6 +37,7 @@
     "ngx-input-file": "10.2.0",
     "ngx-perfect-scrollbar": "10.1.1",
     "ngx-progressbar": "6.1.1",
+    "ngx-spinner": "^13.0.0",
     "ngx-swiper-wrapper": "10.0.0",
     "rxjs": "7.4.0",
     "snazzy-info-window": "1.1.1",
