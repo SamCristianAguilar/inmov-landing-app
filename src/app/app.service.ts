@@ -14,7 +14,7 @@ import {
 } from "./shared/confirm-dialog/confirm-dialog.component";
 import { AlertDialogComponent } from "./shared/alert-dialog/alert-dialog.component";
 import { TranslateService } from "@ngx-translate/core";
-import { Feature, StateProperty, TypeProperty } from "./models/models";
+import { Departament, Feature, StateProperty, TypeProperty } from "./models/models";
 
 export class Data {
   constructor(
@@ -251,6 +251,9 @@ export class AppService {
 
   public getStateProperty(){
     return this.http.get<StateProperty[]>(this.urlBack + "/state-property");
+  }
+  public getAllDepartaments(){
+    return this.http.get<Departament[]>(this.urlBack + "/departament")
   }
 
   public getHomeCarouselSlides() {

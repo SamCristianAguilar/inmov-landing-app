@@ -1,10 +1,12 @@
 /// <reference types="@types/googlemaps" />
-import { Component, OnInit, ViewChild, ElementRef, NgZone, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, NgZone, ViewEncapsulation, AfterViewInit, OnDestroy } from "@angular/core";
 import { MatStepper } from "@angular/material/stepper";
-import { FormGroup, FormBuilder, Validators, FormArray } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
 import { AppService } from "src/app/app.service";
 import { MapsAPILoader } from "@agm/core";
-import { tap } from "rxjs";
+import { ReplaySubject, Subject, take, takeUntil, tap } from "rxjs";
+import { City, Departament } from "src/app/models/models";
+import { MatSelect } from "@angular/material/select";
 
 @Component({
   selector: "app-submit-property",
@@ -12,17 +14,26 @@ import { tap } from "rxjs";
   styleUrls: ["./submit-property.component.scss"],
   encapsulation: ViewEncapsulation.None,
 })
-export class SubmitPropertyComponent implements OnInit {
+export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("horizontalStepper") horizontalStepper: MatStepper;
   @ViewChild("addressAutocomplete") addressAutocomplete: ElementRef;
   public submitForm: FormGroup;
+  public idOwner: number = 1;
   public features = [];
   public featuresGroup = [];
   public typeProp = "apartamento";
   public propertyTypes = [];
   public statesProperty = [];
   public propertyStatuses = [];
-  public cities = [];
+  public departaments: Departament[] = [];
+  public cities: City[] = [];
+  public filteredDepartaments: ReplaySubject<Departament[]> = new ReplaySubject<Departament[]>(1);
+  public filteredCities: ReplaySubject<City[]> = new ReplaySubject<City[]>(1);
+  @ViewChild("singleSelect", { static: true }) singleSelect: MatSelect;
+  protected _onDestroy = new Subject<void>();
+
+
+
   public neighborhoods = [];
   public streets = [];
   public lat: number = 40.678178;
@@ -45,10 +56,11 @@ export class SubmitPropertyComponent implements OnInit {
 
     this.submitForm = this.fb.group({
       basic: this.fb.group({
+        owner: [null, Validators.required],
         title: [null, Validators.required],
         desc: [null, Validators.required],
         propertyType: [null, Validators.required],
-        premium: [null, Validators.required],
+        premium: [null],
       }),
       infoProperty: this.fb.group({
         price: [null, Validators.required],
@@ -60,6 +72,16 @@ export class SubmitPropertyComponent implements OnInit {
         interiorFoors: [null, Validators.required],
         stateProperty: [null, Validators.required],
         features: this.buildFeatures(),
+      }),
+      location: this.fb.group({
+        departament: [""],
+        departamentFilter: [""],
+        city: [""],
+        cityFilter: [""],
+        location: [""],
+        zipCode: "",
+        neighborhood: "",
+        street: "",
       }),
       address: this.fb.group({
         location: [""],
@@ -84,6 +106,14 @@ export class SubmitPropertyComponent implements OnInit {
     });
     this.setCurrentPosition();
     this.getTypeProperty();
+    this.getDepartament();
+  }
+  ngAfterViewInit() {
+  }
+
+  ngOnDestroy() {
+    this._onDestroy.next();
+    this._onDestroy.complete();
   }
 
   public getTypeProperty(): any {
@@ -106,6 +136,69 @@ export class SubmitPropertyComponent implements OnInit {
         })
       )
       .subscribe();
+  }
+
+  public getDepartament() {
+    this.appService
+      .getAllDepartaments()
+      .pipe(
+        tap((res) => {
+          this.departaments = res;
+          this.initSelectDepartament();
+        })
+      )
+      .subscribe();
+  }
+
+  public initSelectDepartament() {
+    const departamet = this.submitForm.controls.location.get("departament") as FormControl;
+    departamet.setValue(this.departaments)
+
+    // load the initial bank list
+    this.filteredDepartaments.next(this.departaments.slice());
+
+    // listen for search field value changes
+    const departamentFilter = this.submitForm.controls.location.get("departamentFilter") as FormControl;
+    departamentFilter.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterDepartaments();
+      });
+    this.setInitialValueDepartaments();
+
+  }
+
+  protected setInitialValueDepartaments() {
+    this.filteredDepartaments
+      .pipe(take(1), takeUntil(this._onDestroy))
+      .subscribe(() => {
+        // setting the compareWith property to a comparison function
+        // triggers initializing the selection according to the initial value of
+        // the form control (i.e. _initializeSelection())
+        // this needs to be done after the filteredBanks are loaded initially
+        // and after the mat-option elements are available
+        this.singleSelect.compareWith = (a: Departament, b: Departament) => a && b && a.id === b.id;
+      });
+  }
+
+  protected filterDepartaments() {
+    if (!this.departaments) {
+      return;
+    }
+    // get the search keyword
+    const departamentFilter = this.submitForm.controls.location.get("departamentFilter") as FormControl;
+
+    let search = departamentFilter.value;
+    if (!search) {
+      this.filteredDepartaments.next(this.departaments.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    // filter the banks
+    this.filteredDepartaments.next(
+      this.departaments.filter(departament => departament.name.toLowerCase().indexOf(search) > -1)
+    );
   }
 
   public getFeatures(): any {
@@ -140,6 +233,7 @@ export class SubmitPropertyComponent implements OnInit {
     });
   }
 
+  //select change del mat-stepper
   public onSelectionChange(e: any) {
     this.horizontalStepper._steps.forEach((step) => {
       step.editable = false;
@@ -155,6 +249,96 @@ export class SubmitPropertyComponent implements OnInit {
       console.log(this.submitForm.value);
     }
   }
+
+
+  protected setInitialValueCities() {
+    this.filteredCities
+      .pipe(take(1), takeUntil(this._onDestroy))
+      .subscribe(() => {
+        // setting the compareWith property to a comparison function
+        // triggers initializing the selection according to the initial value of
+        // the form control (i.e. _initializeSelection())
+        // this needs to be done after the filteredBanks are loaded initially
+        // and after the mat-option elements are available
+        this.singleSelect.compareWith = (a: City, b: City) => a && b && a.id === b.id;
+      });
+  }
+  protected filterCities() {
+    const city = this.submitForm.controls.location.get("city") as FormControl;
+    if (!city.value) {
+      return;
+    }
+    // get the search keyword
+    const cityFilter = this.submitForm.controls.location.get("cityFilter") as FormControl;
+
+    let search = cityFilter.value;
+    if (!search) {
+      this.filteredCities.next(city.value.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    // filter the banks
+    this.filteredCities.next(
+      city.value.filter(city => city.name.toLowerCase().indexOf(search) > -1)
+    );
+  }
+
+  public initSelectCity() {
+    const city = this.submitForm.controls.location.get("city") as FormControl;
+    const departamet = this.submitForm.controls.location.get("departament") as FormControl;
+
+    const cities = departamet.value.citys
+
+    console.log(city);
+    console.log(cities);
+    city.setValue(cities)
+
+    // load the initial bank list
+    this.filteredCities.next(cities.slice());
+
+    // listen for search field value changes
+    const cityFilter = this.submitForm.controls.location.get("cityFilter") as FormControl;
+    cityFilter.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterCities();
+      });
+    this.setInitialValueCities();
+
+  }
+  // -------------------- Address ---------------------------
+  public onSelectCity() {
+
+    this.submitForm.controls.location.get("city").setValue(null, { emitEvent: false });
+    this.initSelectCity();
+
+  }
+  public onSelectNeighborhood() {
+    this.submitForm.controls.address.get("street").setValue(null, { emitEvent: false });
+  }
+
+  private setCurrentPosition() {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.lat = position.coords.latitude;
+        this.lng = position.coords.longitude;
+      });
+    }
+  }
+
+  // -------------------- Additional ---------------------------
+  public buildFeatures() {
+    const arr = this.features.map((feature) => {
+      return this.fb.group({
+        id: feature.id,
+        name: feature.name,
+        selected: feature.selected,
+      });
+    });
+    return this.fb.array(arr);
+  }
+
 
   public reset() {
     console.log("hola stepper");
@@ -183,37 +367,6 @@ export class SubmitPropertyComponent implements OnInit {
       },
     });
   }
-
-  // -------------------- Address ---------------------------
-  public onSelectCity() {
-    this.submitForm.controls.address.get("neighborhood").setValue(null, { emitEvent: false });
-    this.submitForm.controls.address.get("street").setValue(null, { emitEvent: false });
-  }
-  public onSelectNeighborhood() {
-    this.submitForm.controls.address.get("street").setValue(null, { emitEvent: false });
-  }
-
-  private setCurrentPosition() {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.lat = position.coords.latitude;
-        this.lng = position.coords.longitude;
-      });
-    }
-  }
-
-  // -------------------- Additional ---------------------------
-  public buildFeatures() {
-    const arr = this.features.map((feature) => {
-      return this.fb.group({
-        id: feature.id,
-        name: feature.name,
-        selected: feature.selected,
-      });
-    });
-    return this.fb.array(arr);
-  }
-
   // -------------------- Media ---------------------------
   public createVideo(): FormGroup {
     return this.fb.group({

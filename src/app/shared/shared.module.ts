@@ -37,6 +37,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
@@ -117,6 +118,7 @@ import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-h
     MatToolbarModule,
     MatTooltipModule,
     MatStepperModule,
+    NgxMatSelectSearchModule,
     PerfectScrollbarModule,
     AgmCoreModule,
     AgmSnazzyInfoWindowModule,
@@ -162,6 +164,7 @@ import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-h
     MatToolbarModule,
     MatTooltipModule,
     MatStepperModule,
+    NgxMatSelectSearchModule,
     PerfectScrollbarModule,
     AgmCoreModule,
     AgmSnazzyInfoWindowModule,

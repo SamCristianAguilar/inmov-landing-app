@@ -2,183 +2,36 @@
   <div class="theme-container">
     <mat-card ngClass.lt-lg="p-0" [formGroup]="submitForm">
       <mat-horizontal-stepper #horizontalStepper linear="true" class="submit-property" (selectionChange)="onSelectionChange($event)">
-        <mat-step [stepControl]="submitForm.get('basic')" label="Datos Basicos">
+
+        <mat-step [stepControl]="this.submitForm.get('location')" label="Ubicación">
           <div class="step-content">
-            <form formGroupName="basic" fxLayout="row wrap">
-              <div fxFlex="100" class="p-3">
-                <h1 class="fw-500 text-center">Datos Basicos</h1>
-              </div>
-
-              <div fxFlex="100" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Título</mat-label>
-                  <input matInput="matInput" placeholder="Título" formControlName="title" required="required" autocomplete="off" />
-                  <mat-error *ngIf="submitForm.get('basic')['controls'].title.errors?.required">El título es requerido</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Descripción</mat-label>
-                  <textarea matInput="matInput" placeholder="Descripción" formControlName="desc" rows="7"></textarea>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Tipo de propiedad</mat-label>
-                  <mat-select placeholder="Seleccione" formControlName="propertyType" required="required">
-                    <mat-option *ngFor="let propertyType of propertyTypes" [value]="propertyType">
-                      {{ propertyType.name }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="submitForm.get('basic')['controls'].propertyType.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="50" class="px-3">
-                <mat-checkbox class="w-100" formControlName="premium">Premium</mat-checkbox>
-                <mat-error class="w-100" *ngIf="this.submitForm.value.basic.premium"
-                  >{{alertPremiumMessage}}</mat-error
-                >
-              </div>
-
-              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
-                <button mat-raised-button="mat-raised-button" color="primary" matStepperNext="matStepperNext" fxLayout="row" fxLayoutAlign="center center" type="button">
-                  <span class="mx-1 uppercase">Siguiente</span>
-                  <mat-icon>navigate_next</mat-icon>
-                </button>
-              </div>
-            </form>
-          </div>
-        </mat-step>
-        <mat-step [stepControl]="submitForm.get('infoProperty')" label="Información de la propiedad">
-          <div class="step-content">
-            <form formGroupName="infoProperty" fxLayout="row wrap">
-              <div fxFlex="100" class="p-3">
-                <h1 class="fw-500 text-center">Información de la propiedad</h1>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Precio ($)</mat-label>
-                  <input matInput="matInput" placeholder="Precio" formControlName="price" autocomplete="off" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].price.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Estrato</mat-label>
-                  <input type="number" matInput="matInput" placeholder="Estrato" autocomplete="off" formControlName="stratum" onlyNumber="onlyNumber" maxlength="2" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].stratum.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Habitaciones</mat-label>
-                  <input type="number" matInput="matInput" placeholder="Habitaciones" autocomplete="off" formControlName="rooms" onlyNumber="onlyNumber" maxlength="2" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].rooms.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Baños</mat-label>
-                  <input type="number" matInput="matInput" placeholder="baths" autocomplete="off" formControlName="baths" onlyNumber="onlyNumber" maxlength="2" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].baths.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Garajes</mat-label>
-                  <input type="number" matInput="matInput" placeholder="Garajes" autocomplete="off" formControlName="garages" onlyNumber="onlyNumber" maxlength="2" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].garages.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Area (mt²)</mat-label>
-                  <input matInput="matInput" placeholder="Area" autocomplete="off" formControlName="area" onlyNumber="onlyNumber" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].area.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label># Pisos interiores</mat-label>
-                  <input matInput="matInput" placeholder="# Pisos interiores" autocomplete="off" formControlName="interiorFoors" onlyNumber="onlyNumber" />
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].interiorFoors.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Estado de la propiedad</mat-label>
-                  <mat-select placeholder="Seleccione" formControlName="stateProperty" required="required">
-                    <mat-option *ngFor="let stateProperty of statesProperty" [value]="stateProperty">
-                      {{ stateProperty.name }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].stateProperty.errors?.required">Campo obligatorio.</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div *ngIf="featuresGroup.length > 0" fxFlex="100" class="mb-2 mt-2">
-                <p class="uppercase m-2 fw-500">CARACTERÍSTICAS</p>
-                <div formArrayName="features" fxLayout="row wrap" class="p-2">
-                  <mat-accordion class="example-headers-align w-100">
-                    <div *ngFor="let group of featuresGroup; index as i">
-                      <div>
-                        <mat-expansion-panel class="p-1" [expanded]="i === 0">
-                          <mat-expansion-panel-header>
-                            <mat-panel-title class="uppercase"> <mat-icon class="mr-2">add</mat-icon> {{ group }} </mat-panel-title>
-                          </mat-expansion-panel-header>
-                          <div fxLayout="row wrap">
-                            <div
-                              fxFlex="100"
-                              fxFlex.gt-xs="40"
-                              [hidden]="!(features[i].group.name == group)"
-                              *ngFor="let control of submitForm.get('infoProperty')['controls'].features['controls']; index as i"
-                            >
-                              <div class="pl-1" *ngIf="features[i].group.name == group" [formGroupName]="i">
-                                <mat-checkbox formControlName="selected"> {{ features[i].name }}</mat-checkbox>
-                              </div>
-                            </div>
-                          </div>
-                        </mat-expansion-panel>
-                      </div>
-                    </div>
-                  </mat-accordion>
-                </div>
-              </div>
-
-              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
-                <button mat-raised-button="mat-raised-button" color="primary" matStepperNext="matStepperNext" fxLayout="row" fxLayoutAlign="center center" type="button">
-                  <span class="mx-1 uppercase">Siguiente</span>
-                  <mat-icon>navigate_next</mat-icon>
-                </button>
-              </div>
-            </form>
-          </div>
-        </mat-step>
-        <mat-step [stepControl]="this.submitForm.get('address')" label="Address">
-          <div class="step-content">
-            <form formGroupName="address" fxLayout="row wrap">
+            <form formGroupName="location" fxLayout="row wrap">
               <div fxFlex="100" class="p-3">
                 <h1 class="fw-500 text-center">Ubicación</h1>
               </div>
 
-              <div fxFlex="100" class="px-2">
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
-                  <mat-icon matPrefix="matPrefix" class="mr-1 text-muted"> location_on </mat-icon>
-                  <mat-label>Location</mat-label>
-                  <!-- <input matInput="matInput" placeholder="Enter a location" formControlName="location" autocomplete="off" #addressAutocomplete="#addressAutocomplete" /> -->
-                  <input matInput="matInput" placeholder="Enter a location" formControlName="location" autocomplete="off" />
-
-                  <mat-error *ngIf="submitForm.get('address')['controls'].location.errors?.required"> Location is required </mat-error>
+                  <mat-select  formControlName="departament" placeholder="Departamento" (selectionChange)="onSelectCity()" #singleSelect>
+                    <mat-option>
+                      <ngx-mat-select-search formControlName="departamentFilter" placeholderLabel="Buscar departamento..." ></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let departament of filteredDepartaments | async" [value]="departament">
+                      {{departament.name}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-select  formControlName="city" placeholder="Ciudad"  #singleSelect>
+                    <mat-option>
+                      <ngx-mat-select-search formControlName="cityFilter" placeholderLabel="Buscar ciudad..." ></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let city of filteredCities | async" [value]="city">
+                      {{city.name}}
+                    </mat-option>
+                  </mat-select>
                 </mat-form-field>
               </div>
 

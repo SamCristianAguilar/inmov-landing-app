@@ -35,6 +35,7 @@
     "express": "4.17.1",
     "ngx-embed-video": "1.0.4",
     "ngx-input-file": "10.2.0",
+    "ngx-mat-select-search": "^4.0.2",
     "ngx-perfect-scrollbar": "10.1.1",
     "ngx-progressbar": "6.1.1",
     "ngx-spinner": "^13.0.0",
