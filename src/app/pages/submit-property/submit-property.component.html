@@ -1,8 +1,300 @@
 <div class="p-3">
   <div class="theme-container">
-    <mat-card ngClass.lt-lg="p-0" [formGroup]="submitForm">
-      <mat-horizontal-stepper #horizontalStepper linear="true" class="submit-property" (selectionChange)="onSelectionChange($event)">
+    <mat-card [formGroup]="submitForm" ngClass.lt-lg="p-0">
+      <mat-horizontal-stepper #horizontalStepper (selectionChange)="onSelectionChange($event)" linear="true" class="submit-property">
+        <mat-step [stepControl]="submitForm.get('contract')" label="Servicio">
+          <div class="step-content">
+            <form formGroupName="contract" fxLayout="row wrap">
+              <div fxFlex="100" class="p-3">
+                <h2 class="fw-500 text-center uppercase">Tipo de servicio</h2>
+              </div>
+              <div fxFlex="100" class="px-2 mb-4">
+                <div>
+                  <mat-button-toggle-group fxFlex="100" class="m-0" #group="matButtonToggleGroup" formControlName="typeContract">
+                    <mat-button-toggle class="m-0" fxFlex="100" fxFlex.gt-xs="50" value="forrent" aria-label="Text align left">
+                      <div class="txt-toggle-contract alc al-c">
+                        <div>
+                          <h2 class="uppercase w-100 mb-4">Para arrendar</h2>
+                          <mat-icon class="icon-selected" *ngIf="submitForm.get('contract')['controls'].typeContract.value === 'forrent'">
+                            check
+                          </mat-icon>
+                        </div>
+                      </div>
+                      <img class="w-100 image-toggle-contract" src="assets/contract-img/rent.jpg" alt="Boton Arrendar" />
+                    </mat-button-toggle>
+                    <mat-button-toggle class="m-0" fxFlex="100" fxFlex.gt-xs="50" value="forsale" aria-label="Text align left">
+                      <div class="txt-toggle-contract alc al-c">
+                        <div>
+                          <h2 class="uppercase w-100 mb-4">Para Vender</h2>
+                          <mat-icon class="icon-selected" *ngIf="submitForm.get('contract')['controls'].typeContract.value === 'forsale'">
+                            check
+                          </mat-icon>
+                        </div>
+                      </div>
+                      <img class="w-100 image-toggle-contract" src="assets/contract-img/sale.jpg" alt="Boton Vender" />
+                    </mat-button-toggle>
+                  </mat-button-toggle-group>
+                </div>
+                <div>
+                  <!-- <div class="example-selected-value">Selected value: {{ submitForm.get('contract')['controls'].typeContract.value }}</div> -->
+                  <mat-error class="w-100 text-center mt-4 uppercase" *ngIf="submitForm.get('contract')['controls'].typeContract.errors?.required">
+                    Seleccione una opción.
+                  </mat-error>
+                  <mat-error class="w-100 text-center" *ngIf="submitForm.get('contract')['controls'].typeContract.errors?.required">
+                    presionando en alguna de las imagenes.
+                  </mat-error>
+                </div>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="100" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label
+                    >Precio ($)
+                    {{
+                      submitForm.get('contract')['controls'].typeContract.value == 'forrent'
+                        ? 'de arriendo'
+                        : submitForm.get('contract')['controls'].typeContract.value == 'forsale'
+                        ? 'de venta'
+                        : ''
+                    }}</mat-label
+                  >
+                  <input
+                    [placeholder]="'Precio'"
+                    currencyMask
+                    maxlength="20"
+                    [readonly]="!(group.value != null)"
+                    matInput="matInput"
+                    formControlName="price"
+                    autocomplete="off"
+                  />
+                  <mat-error *ngIf="submitForm.get('contract')['controls'].price.errors?.required">Campo obligatorio.</mat-error>
+                  <mat-error *ngIf="submitForm.get('contract')['controls'].typeContract.errors?.required">
+                    Seleccione una opciónes de servicio, para arrendar o para vender.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
+                <button
+                  mat-raised-button="mat-raised-button"
+                  color="primary"
+                  matStepperNext="matStepperNext"
+                  fxLayout="row"
+                  fxLayoutAlign="center center"
+                  type="button"
+                >
+                  <span class="mx-1 uppercase">Siguiente</span>
+                  <mat-icon>navigate_next</mat-icon>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+        <mat-step [stepControl]="submitForm.get('basic')" label="Datos Basicos">
+          <div class="step-content">
+            <form formGroupName="basic" fxLayout="row wrap">
+              <div fxFlex="100" class="p-3">
+                <h1 class="fw-500 text-center">Datos Basicos</h1>
+              </div>
+              <div fxFlex="100" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Título</mat-label>
+                  <input matInput="matInput" placeholder="Título" formControlName="title" required="required" autocomplete="off" />
+                  <mat-error *ngIf="submitForm.get('basic')['controls'].title.errors?.required"> El título es requerido </mat-error>
+                </mat-form-field>
+              </div>
 
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Tipo de propiedad</mat-label>
+                  <mat-select placeholder="Seleccione" formControlName="propertyType" required="required">
+                    <mat-option *ngFor="let propertyType of propertyTypes" [value]="propertyType">
+                      {{ propertyType.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="submitForm.get('basic')['controls'].propertyType.errors?.required">Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-3">
+                <label class="w-100" id="label-premium">¿Desea contratar el servicio de toma de fotografias premium?</label>
+                <mat-radio-group class="w-100 radio-group-premium" formControlName="premium" aria-label="label-premium" required>
+                  <mat-radio-button color="primary" class="premium-radio-button" [value]="true">Si</mat-radio-button>
+                  <mat-radio-button color="primary" class="premium-radio-button" [value]="false">No</mat-radio-button>
+                  <mat-label *ngIf="submitForm.get('basic')['controls'].premium.value == null">Marque una opción.</mat-label>
+                </mat-radio-group>
+                <mat-error *ngIf="this.submitForm.value.basic.premium == true" class="w-100">
+                  {{ alertPremiumMessage }}
+                </mat-error>
+              </div>
+
+              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
+                <button
+                  mat-raised-button="mat-raised-button"
+                  color="primary"
+                  matStepperNext="matStepperNext"
+                  fxLayout="row"
+                  fxLayoutAlign="center center"
+                  type="button"
+                >
+                  <span class="mx-1 uppercase">Siguiente</span>
+                  <mat-icon>navigate_next</mat-icon>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+        <mat-step [stepControl]="submitForm.get('infoProperty')" label="Información de la propiedad">
+          <div class="step-content">
+            <form formGroupName="infoProperty" fxLayout="row wrap">
+              <div fxFlex="100" class="p-3">
+                <h1 class="fw-500 text-center">Información de la propiedad</h1>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Estrato</mat-label>
+                  <input
+                    type="number"
+                    matInput="matInput"
+                    placeholder="Estrato"
+                    autocomplete="off"
+                    formControlName="stratum"
+                    onlyNumber="onlyNumber"
+                    maxlength="2"
+                  />
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].stratum.errors?.required"> Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Habitaciones</mat-label>
+                  <input
+                    type="number"
+                    matInput="matInput"
+                    placeholder="Habitaciones"
+                    autocomplete="off"
+                    formControlName="rooms"
+                    onlyNumber="onlyNumber"
+                    maxlength="2"
+                  />
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].rooms.errors?.required">Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Baños</mat-label>
+                  <input
+                    type="number"
+                    matInput="matInput"
+                    placeholder="baths"
+                    autocomplete="off"
+                    formControlName="baths"
+                    onlyNumber="onlyNumber"
+                    maxlength="2"
+                  />
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].baths.errors?.required">Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Garajes</mat-label>
+                  <input
+                    type="number"
+                    matInput="matInput"
+                    placeholder="Garajes"
+                    autocomplete="off"
+                    formControlName="garages"
+                    onlyNumber="onlyNumber"
+                    maxlength="2"
+                  />
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].garages.errors?.required"> Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Area (mt²)</mat-label>
+                  <input type="number" matInput="matInput" placeholder="Area" autocomplete="off" formControlName="area" onlyNumber="onlyNumber" />
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].area.errors?.required"> Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label># Pisos interiores</mat-label>
+                  <input
+                    type="number"
+                    matInput="matInput"
+                    placeholder="# Pisos interiores"
+                    autocomplete="off"
+                    formControlName="interiorFoors"
+                    onlyNumber="onlyNumber"
+                  />
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].interiorFoors.errors?.required"> Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label> Estado de la propiedad </mat-label>
+                  <mat-select placeholder="Seleccione" formControlName="stateProperty" required="required">
+                    <mat-option *ngFor="let stateProperty of statesProperty" [value]="stateProperty">
+                      {{ stateProperty.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="submitForm.get('infoProperty')['controls'].stateProperty.errors?.required"> Campo obligatorio.</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div *ngIf="featuresGroup.length > 0" fxFlex="100" class="mb-2 mt-2">
+                <p class="uppercase m-2 fw-500">CARACTERÍSTICAS</p>
+                <div formArrayName="features" fxLayout="row wrap" class="p-2">
+                  <mat-accordion #myaccordion class="example-headers-align w-100" multi>
+                    <div *ngFor="let group of featuresGroup; index as i">
+                      <div>
+                        <mat-expansion-panel class="p-1">
+                          <mat-expansion-panel-header>
+                            <mat-panel-title class="uppercase">
+                              <mat-icon class="mr-2">add</mat-icon>
+                              {{ group }}
+                            </mat-panel-title>
+                          </mat-expansion-panel-header>
+                          <div fxLayout="row wrap">
+                            <div
+                              *ngFor="let control of submitForm.get('infoProperty')['controls'].features['controls']; index as i"
+                              [hidden]="!(features[i].group.name == group)"
+                              fxFlex="100"
+                              fxFlex.gt-xs="40"
+                            >
+                              <div [formGroupName]="i" class="pl-1">
+                                <mat-checkbox color="primary" formControlName="selected">
+                                  {{ features[i].name }}
+                                </mat-checkbox>
+                              </div>
+                            </div>
+                          </div>
+                        </mat-expansion-panel>
+                      </div>
+                    </div>
+                  </mat-accordion>
+                </div>
+              </div>
+              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
+                <button
+                  mat-raised-button="mat-raised-button"
+                  color="primary"
+                  matStepperNext="matStepperNext"
+                  fxLayout="row"
+                  fxLayoutAlign="center center"
+                  type="button"
+                >
+                  <span class="mx-1 uppercase">Siguiente</span>
+                  <mat-icon>navigate_next</mat-icon>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-step>
         <mat-step [stepControl]="this.submitForm.get('location')" label="Ubicación">
           <div class="step-content">
             <form formGroupName="location" fxLayout="row wrap">
@@ -10,107 +302,123 @@
                 <h1 class="fw-500 text-center">Ubicación</h1>
               </div>
 
-              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+              <div fxFlex="100" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
-                  <mat-select  formControlName="departament" placeholder="Departamento" (selectionChange)="onSelectCity()" #singleSelect>
-                    <mat-option>
-                      <ngx-mat-select-search formControlName="departamentFilter" placeholderLabel="Buscar departamento..." ></ngx-mat-select-search>
-                    </mat-option>
-                    <mat-option *ngFor="let departament of filteredDepartaments | async" [value]="departament">
-                      {{departament.name}}
-                    </mat-option>
-                  </mat-select>
+                  <mat-label>Dirección</mat-label>
+                  <input
+                    matInput="matInput"
+                    placeholder="Ingrese la dirección de forma detallada"
+                    formControlName="address"
+                    required
+                    autocomplete="off"
+                  />
+                  <mat-error *ngIf="submitForm.get('location')['controls'].address.errors?.required"> Campo requerido</mat-error>
                 </mat-form-field>
               </div>
               <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
-                  <mat-select  formControlName="city" placeholder="Ciudad"  #singleSelect>
-                    <mat-option>
-                      <ngx-mat-select-search formControlName="cityFilter" placeholderLabel="Buscar ciudad..." ></ngx-mat-select-search>
+                  <mat-label>Departamento</mat-label>
+                  <input [matAutocomplete]="auto" type="text" matInput formControlName="departament" required />
+                  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFnDepartament" (optionSelected)="onSelectCity($event)">
+                    <mat-option *ngFor="let option of filteredOptionsDepartaments | async" [value]="option">
+                      {{ option.name }}
                     </mat-option>
-                    <mat-option *ngFor="let city of filteredCities | async" [value]="city">
-                      {{city.name}}
+                  </mat-autocomplete>
+                  <mat-error *ngIf="submitForm.get('location')['controls']['departament'].hasError('required')"> Campor rquerido </mat-error>
+                  <mat-error *ngIf="submitForm.get('location')['controls']['departament'].hasError('incorrect')">
+                    Seleccione una opción correcta
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Ciudad</mat-label>
+                  <input [matAutocomplete]="auto1" type="text" matInput formControlName="city" required />
+                  <mat-autocomplete #auto1="matAutocomplete" [displayWith]="displayFnCity">
+                    <mat-option *ngFor="let option of filteredOptionsCities | async" [value]="option">
+                      {{ option.name }}
                     </mat-option>
-                  </mat-select>
+                  </mat-autocomplete>
+                  <mat-error *ngIf="submitForm.get('location')['controls']['city'].hasError('required')"> Campo requerido </mat-error>
+                  <mat-error *ngIf="submitForm.get('location')['controls']['city'].hasError('incorrect')"> Seleccione una opción correcta </mat-error>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Zona</mat-label>
+                  <input matInput="matInput" formControlName="zone" required="required" autocomplete="off" />
+                  <mat-error *ngIf="submitForm.get('location')['controls'].zone.errors?.required"> Campo requerido</mat-error>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Barrio</mat-label>
+                  <input matInput="matInput" placeholder="Zona" formControlName="neighborhood" required="required" autocomplete="off" />
+                  <mat-error *ngIf="submitForm.get('location')['controls'].neighborhood.errors?.required"> Campo requerido</mat-error>
                 </mat-form-field>
               </div>
 
-              <!-- <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
-                                <mat-form-field appearance="outline" class="w-100">
-                                    <mat-label>City</mat-label>
-                                    <mat-select placeholder="Select City..." formControlName="city" (selectionChange)="onSelectCity()" required="required">
-                                        <mat-option *ngFor="let city of cities" [value]="city">
-                                            {{ city.name }}
-                                        </mat-option>
-                                    </mat-select>
-                                    <mat-error *ngIf="submitForm.get('data')['address']['controls'].city.errors?.required"> City is required </mat-error>
-                                </mat-form-field>
-                            </div>
-
-                            <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
-                                <mat-form-field appearance="outline" class="w-100">
-                                    <mat-label>Zip Code</mat-label>
-                                    <input matInput="matInput" placeholder="exp. 98104" autocomplete="off" formControlName="zipCode" />
-                                </mat-form-field>
-                            </div>
-
-                            <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
-                                <mat-form-field appearance="outline" class="w-100">
-                                    <mat-label>Neighborhood</mat-label>
-                                    <mat-select placeholder="Select Neighborhood..." formControlName="neighborhood" multiple="multiple" (selectionChange)="onSelectNeighborhood()">
-                                        <mat-option *ngFor="let neighborhood of neighborhoods | filterNeighborhoods: submitForm.get('data')['address']['controls'].city.value?.id" [value]="neighborhood">
-                                            {{ neighborhood.name }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-
-                            <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
-                                <mat-form-field appearance="outline" class="w-100">
-                                    <mat-label>Street</mat-label>
-                                    <mat-select placeholder="Select Street..." formControlName="street" multiple="multiple">
-                                        <mat-option *ngFor="                        let street of streets
-                          | filterStreets: { neighborhoods: submitForm.get('data')['address']['controls'].neighborhood.value?.id, cityId: submitForm.get('data')['address']['controls'].city.value?.id }
-                      " [value]="street">
-                                            {{ street.name }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div> -->
-
-              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="space-between center">
-                <button mat-raised-button="mat-raised-button" color="primary" matStepperPrevious="matStepperPrevious" fxLayout="row" fxLayoutAlign="center center" type="button">
-                  <mat-icon>navigate_before</mat-icon>
-                  <span class="mx-1 uppercase">Back</span>
+              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
+                <button
+                  *ngIf="this.lengthStepper == this.horizontalStepper.selectedIndex + 1"
+                  (click)="submitProperty()"
+                  [disabled]="submitForm.get('location').invalid"
+                  mat-raised-button="mat-raised-button"
+                  color="primary"
+                  fxLayout="row"
+                  fxLayoutAlign="center center"
+                  type="button"
+                >
+                  <span class="mx-1 uppercase">Enviar</span>
+                  <mat-icon>navigate_next</mat-icon>
                 </button>
-                <button mat-raised-button="mat-raised-button" color="primary" matStepperNext="matStepperNext" fxLayout="row" fxLayoutAlign="center center" type="button">
-                  <span class="mx-1 uppercase">Next</span>
+                <button
+                  *ngIf="!(this.lengthStepper == this.horizontalStepper.selectedIndex + 1)"
+                  mat-raised-button="mat-raised-button"
+                  color="primary"
+                  matStepperNext="matStepperNext"
+                  fxLayout="row"
+                  fxLayoutAlign="center center"
+                  type="button"
+                >
+                  <span class="mx-1 uppercase">Siguiente</span>
                   <mat-icon>navigate_next</mat-icon>
                 </button>
               </div>
             </form>
           </div>
         </mat-step>
-
-        <mat-step label="Confirmation">
+        <mat-step *ngIf="!submitForm.get('basic')['controls'].premium.value" [stepControl]="this.submitForm.get('media')" label="Imagenes">
           <div class="step-content">
-            <div fxLayout="column" fxLayoutAlign="center center" class="pt-5 text-center">
-              <button mat-fab="mat-fab" color="primary">
-                <mat-icon>check</mat-icon>
-              </button>
-              <h2 class="mt-3 uppercase">Congratulation!</h2>
-              <h2 class="my-3">
-                Your property
-                <span class="primary-color"> "{{ submitForm.get("basic")["controls"].title.value }}" </span> has been submitted
-              </h2>
-              <p class="text-muted">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempus dolor ante, ut luctus mi faucibus a. Ut eu tincidunt neque. Proin porttitor id ligula id placerat. Integer nec nulla
-                varius, dapibus libero quis, semper eros. Aliquam erat volutpat. Proin volutpat tellus vel purus interdum euismod.
-              </p>
-            </div>
-            <div fxLayout="row" fxLayoutAlign="center center" class="pt-3">
-              <button mat-raised-button="mat-raised-button" color="accent" (click)="reset()" type="button">Return to submit new property</button>
-            </div>
+            <form formGroupName="media" fxLayout="row wrap">
+              <div fxFlex="100" class="step-section pb-2">
+                <p class="mb-0">
+                  <span class="uppercase fw-500">Galeria</span>
+                  <span class="text-muted mx-3">(max 8 imagenes)</span>
+                </p>
+                <input-file formControlName="gallery" fileLimit="8" fileAccept="image/*"></input-file>
+                <mat-error *ngIf="submitForm.get('media')['controls']['gallery'].hasError('required')">
+                  Seleccione un minimo de 4 imagenes
+                </mat-error>
+                <mat-error *ngIf="submitForm.get('media')['controls']['gallery'].hasError('incorrect')">
+                  Seleccione un minimo de 4 imagenes
+                </mat-error>
+              </div>
+              <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
+                <button
+                  [disabled]="submitForm.get('media').invalid"
+                  (click)="uploadImages()"
+                  mat-raised-button="mat-raised-button"
+                  color="primary"
+                  fxLayout="row"
+                  fxLayoutAlign="center center"
+                  type="submit"
+                >
+                  <span class="mx-1 uppercase">Enviar</span>
+                  <mat-icon>navigate_next</mat-icon>
+                </button>
+              </div>
+            </form>
           </div>
         </mat-step>
       </mat-horizontal-stepper>

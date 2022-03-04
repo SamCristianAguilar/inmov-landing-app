@@ -16,14 +16,39 @@ export class City {
 export class Departament {
   constructor(public id: number, public name: string, public citys: City[]) {}
 }
-export interface newProperty {
-  name: string;
-  description: string;
-  premium: boolean;
-  typePropertyId: number;
-  ownerId: number;
-  features: number[];
-  //   infoProperty: InfoPropertyDto;
-  //   location: LocationDto;
-  photos: any;
+
+export class ContractForRentRequest {
+  constructor(public contractValue: number, public description: string, public holder: number, public property: PropertyRequest) {}
+}
+export class PropertyRequest {
+  constructor(
+    public title: string,
+    public premium: boolean,
+    public typeProperty: TypeProperty,
+    public ownerId: number,
+    public infoProperty: InfoProperty,
+    public location: Location,
+    public photos: Photos
+  ) {}
+}
+
+export class InfoProperty {
+  constructor(
+    public stratum: number,
+    public area: number,
+    public rooms: number,
+    public baths: number,
+    public garages: number,
+    public interiorFoors: number,
+    public stateProperty: StateProperty,
+    public features: Feature[]
+  ) {}
+}
+
+export class Location {
+  constructor(public zone: string, public neighborhood: string, public address: string, public city: City) {}
+}
+
+export class Photos {
+  constructor(public paths: string[]) {}
 }

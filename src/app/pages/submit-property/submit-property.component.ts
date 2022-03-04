@@ -1,69 +1,89 @@
 /// <reference types="@types/googlemaps" />
-import { Component, OnInit, ViewChild, ElementRef, NgZone, ViewEncapsulation, AfterViewInit, OnDestroy } from "@angular/core";
-import { MatStepper } from "@angular/material/stepper";
-import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
-import { AppService } from "src/app/app.service";
-import { MapsAPILoader } from "@agm/core";
-import { ReplaySubject, Subject, take, takeUntil, tap } from "rxjs";
-import { City, Departament } from "src/app/models/models";
-import { MatSelect } from "@angular/material/select";
+import { Component, OnInit, ViewChild, ElementRef, NgZone, ViewEncapsulation, AfterViewInit, OnDestroy } from '@angular/core';
+import { MatStepper } from '@angular/material/stepper';
+import { FormGroup, FormBuilder, Validators, FormArray, FormControl, AbstractControl } from '@angular/forms';
+import { AppService } from 'src/app/app.service';
+import { map, Observable, startWith, tap } from 'rxjs';
+import { City, ContractForRentRequest, Departament, InfoProperty, Location, Photos, PropertyRequest } from 'src/app/models/models';
+import { MatSelect } from '@angular/material/select';
+
+import { TYPE_CONTRACT, TYPE_STREET } from 'src/app/common/constants';
+
+import { PropertyService } from 'src/app/services/property.service';
+import { RequireMatch } from 'src/app/common/validators/require-match';
+import { LenghtArrayFiles } from 'src/app/common/validators/length-files';
+import { ToastrService } from 'ngx-toastr';
+import { ContractService } from 'src/app/services/contract.service';
+import { MatAccordion } from '@angular/material/expansion';
 
 @Component({
-  selector: "app-submit-property",
-  templateUrl: "./submit-property.component.html",
-  styleUrls: ["./submit-property.component.scss"],
+  selector: 'app-submit-property',
+  templateUrl: './submit-property.component.html',
+  styleUrls: ['./submit-property.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild("horizontalStepper") horizontalStepper: MatStepper;
-  @ViewChild("addressAutocomplete") addressAutocomplete: ElementRef;
+  @ViewChild('horizontalStepper') horizontalStepper: MatStepper;
+  @ViewChild('addressAutocomplete') addressAutocomplete: ElementRef;
+  @ViewChild(MatAccordion) accordion: MatAccordion;
+  @ViewChild('singleSelect', { static: true })
+  singleSelect: MatSelect;
+
   public submitForm: FormGroup;
   public idOwner: number = 1;
+  public typeContract = [];
+  public lengthStepper = 0;
   public features = [];
   public featuresGroup = [];
-  public typeProp = "apartamento";
+  public typeProp = 'apartamento';
   public propertyTypes = [];
   public statesProperty = [];
   public propertyStatuses = [];
   public departaments: Departament[] = [];
   public cities: City[] = [];
-  public filteredDepartaments: ReplaySubject<Departament[]> = new ReplaySubject<Departament[]>(1);
-  public filteredCities: ReplaySubject<City[]> = new ReplaySubject<City[]>(1);
-  @ViewChild("singleSelect", { static: true }) singleSelect: MatSelect;
-  protected _onDestroy = new Subject<void>();
-
-
+  public filteredOptionsDepartaments: Observable<Departament[]>;
+  public filteredOptionsCities: Observable<City[]>;
 
   public neighborhoods = [];
   public streets = [];
+  public typeStreets = [];
   public lat: number = 40.678178;
   public lng: number = -73.944158;
   public zoom: number = 12;
   public alertPremiumMessage =
-    "Recuerde que si marca la opción prémium esto indica forma automática que usted contrata los servicios de innovación inmobiliaria para todo lo referente a la toma fotografías y videos de su propiedad que a su vez van a ser utilizadas en nuestra plataforma.";
+    'Recuerde que si marca la opción prémium esto indica forma automática que usted contrata los servicios de innovación inmobiliaria para todo lo referente a la toma fotografías y videos de su propiedad que a su vez van a ser utilizadas en nuestra plataforma.';
   private isValidEmail = /\S+@\S+\.\S+/;
   private isNumber = /^[0-9]+$/;
-  private isOnlyLetter = "[a-zA-Z ]{2,254}";
+  private isOnlyLetter = '[a-zA-Z ]{2,254}';
   private validateNumberWithDecimal = /^\s*(?=.*[1-9])\d*(?:[.,]\d{0,5})?\s*$/;
 
-  constructor(public appService: AppService, private fb: FormBuilder, private mapsAPILoader: MapsAPILoader, private ngZone: NgZone) {}
+  constructor(
+    public appService: AppService,
+    public propertyService: PropertyService,
+    public contractService: ContractService,
+    private fb: FormBuilder,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit() {
     this.propertyStatuses = this.appService.getPropertyStatuses();
     this.cities = this.appService.getCities();
     this.neighborhoods = this.appService.getNeighborhoods();
     this.streets = this.appService.getStreets();
-
+    this.typeStreets = TYPE_STREET.sort();
+    this.typeContract = TYPE_CONTRACT.sort();
     this.submitForm = this.fb.group({
+      contract: this.fb.group({
+        typeContract: [null, Validators.required],
+        price: [null, Validators.required],
+      }),
+
       basic: this.fb.group({
-        owner: [null, Validators.required],
         title: [null, Validators.required],
-        desc: [null, Validators.required],
         propertyType: [null, Validators.required],
-        premium: [null],
+        premium: [null, Validators.required],
       }),
       infoProperty: this.fb.group({
-        price: [null, Validators.required],
         stratum: [null, Validators.required],
         area: [null, Validators.required],
         rooms: [null, Validators.required],
@@ -74,50 +94,25 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
         features: this.buildFeatures(),
       }),
       location: this.fb.group({
-        departament: [""],
-        departamentFilter: [""],
-        city: [""],
-        cityFilter: [""],
-        location: [""],
-        zipCode: "",
-        neighborhood: "",
-        street: "",
-      }),
-      address: this.fb.group({
-        location: [""],
-        city: [""],
-        zipCode: "",
-        neighborhood: "",
-        street: "",
-      }),
-      additional: this.fb.group({
-        bedrooms: "",
-        bathrooms: "",
-        garages: "",
-        area: "",
-        yearBuilt: "",
+        departament: ['null', [Validators.required, RequireMatch]],
+        city: [{ value: null, disabled: false }, [Validators.required, RequireMatch]],
+        address: [null, Validators.required],
+        zone: [null, Validators.required],
+        neighborhood: [null, Validators.required],
       }),
       media: this.fb.group({
-        videos: this.fb.array([this.createVideo()]),
-        plans: this.fb.array([this.createPlan()]),
-        additionalFeatures: this.fb.array([this.createFeature()]),
-        featured: false,
+        gallery: [null, [Validators.required, LenghtArrayFiles]],
       }),
     });
-    this.setCurrentPosition();
     this.getTypeProperty();
     this.getDepartament();
   }
-  ngAfterViewInit() {
-  }
+  ngAfterViewInit() {}
 
-  ngOnDestroy() {
-    this._onDestroy.next();
-    this._onDestroy.complete();
-  }
+  ngOnDestroy() {}
 
-  public getTypeProperty(): any {
-    this.appService
+  getTypeProperty(): any {
+    this.propertyService
       .getPropertyTypes()
       .pipe(
         tap((res) => {
@@ -127,8 +122,8 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       .subscribe();
   }
 
-  public getStateProperty() {
-    this.appService
+  getStateProperty() {
+    this.propertyService
       .getStateProperty()
       .pipe(
         tap((res) => {
@@ -138,197 +133,76 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       .subscribe();
   }
 
-  public getDepartament() {
-    this.appService
+  getDepartament() {
+    this.propertyService
       .getAllDepartaments()
       .pipe(
         tap((res) => {
           this.departaments = res;
-          this.initSelectDepartament();
+          this.initDepartamentsAutoComplete();
         })
       )
       .subscribe();
   }
 
-  public initSelectDepartament() {
-    const departamet = this.submitForm.controls.location.get("departament") as FormControl;
-    departamet.setValue(this.departaments)
+  //Evento para detectar el cambio de step
+  onSelectionChange(e: any) {
+    e.previouslySelectedStep._editable = false;
+    this.lengthStepper = this.horizontalStepper.steps.length;
+    // if (e.selectedIndex == 1) {
+    // }
 
-    // load the initial bank list
-    this.filteredDepartaments.next(this.departaments.slice());
-
-    // listen for search field value changes
-    const departamentFilter = this.submitForm.controls.location.get("departamentFilter") as FormControl;
-    departamentFilter.valueChanges
-      .pipe(takeUntil(this._onDestroy))
-      .subscribe(() => {
-        this.filterDepartaments();
-      });
-    this.setInitialValueDepartaments();
-
-  }
-
-  protected setInitialValueDepartaments() {
-    this.filteredDepartaments
-      .pipe(take(1), takeUntil(this._onDestroy))
-      .subscribe(() => {
-        // setting the compareWith property to a comparison function
-        // triggers initializing the selection according to the initial value of
-        // the form control (i.e. _initializeSelection())
-        // this needs to be done after the filteredBanks are loaded initially
-        // and after the mat-option elements are available
-        this.singleSelect.compareWith = (a: Departament, b: Departament) => a && b && a.id === b.id;
-      });
-  }
-
-  protected filterDepartaments() {
-    if (!this.departaments) {
-      return;
+    if (e.selectedIndex == 2) {
+      this.getFeatures();
+      this.getStateProperty();
     }
-    // get the search keyword
-    const departamentFilter = this.submitForm.controls.location.get("departamentFilter") as FormControl;
-
-    let search = departamentFilter.value;
-    if (!search) {
-      this.filteredDepartaments.next(this.departaments.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-    // filter the banks
-    this.filteredDepartaments.next(
-      this.departaments.filter(departament => departament.name.toLowerCase().indexOf(search) > -1)
-    );
-  }
-
-  public getFeatures(): any {
-    this.appService.getFeatures().subscribe((res) => {
-      this.features = res;
-      const featureControl = this.submitForm.controls.infoProperty.get("features") as FormArray;
-      this.features.forEach((feature) => {
-        const control = this.fb.group({
-          id: feature.id,
-          name: feature.name,
-          selected: feature.selected,
-          group: feature.group.name,
-        });
-        const groupName = feature.group.name;
-        const groupExist = this.featuresGroup.find((group) => group === groupName);
-
-        this.typeProp = this.submitForm.value.basic.propertyType.name;
-
-        if (!(this.typeProp != "Apartamento" && groupName == "apartamento")) {
-          if (!groupExist) {
-            this.featuresGroup.push(groupName);
-          }
-        }
-
-        featureControl.push(control);
-      });
+    if (e.selectedIndex == 3) {
       const features: [] = this.submitForm.value.infoProperty.features;
       const featuresTrue = features.filter((feature) => {
-        return feature["selected"] === true;
+        return feature['selected'] === true;
       });
       this.submitForm.value.infoProperty.features = featuresTrue;
-    });
-  }
-
-  //select change del mat-stepper
-  public onSelectionChange(e: any) {
-    this.horizontalStepper._steps.forEach((step) => {
-      step.editable = false;
-      if (step.stepControl == this.submitForm.get("infoProperty")) {
-        this.getFeatures();
-        this.getStateProperty();
-      }
-    });
-
-    if (e.selectedIndex > 0) {
-      // this.horizontalStepper._steps.forEach((step) => (step.editable = false));
-
-      console.log(this.submitForm.value);
     }
   }
 
+  //Creacion de la caracteristicas de forma dinamica
+  getFeatures(): any {
+    if (this.features.length === 0) {
+      this.propertyService.getFeatures().subscribe((res) => {
+        this.features = res;
+        const featureControl = this.submitForm.controls.infoProperty.get('features') as FormArray;
+        this.features.forEach((feature) => {
+          const control = this.fb.group({
+            id: feature.id,
+            name: feature.name,
+            selected: feature.selected,
+            group: feature.group,
+          });
+          const groupName = feature.group.name;
+          const groupExist = this.featuresGroup.find((group) => group === groupName);
 
-  protected setInitialValueCities() {
-    this.filteredCities
-      .pipe(take(1), takeUntil(this._onDestroy))
-      .subscribe(() => {
-        // setting the compareWith property to a comparison function
-        // triggers initializing the selection according to the initial value of
-        // the form control (i.e. _initializeSelection())
-        // this needs to be done after the filteredBanks are loaded initially
-        // and after the mat-option elements are available
-        this.singleSelect.compareWith = (a: City, b: City) => a && b && a.id === b.id;
-      });
-  }
-  protected filterCities() {
-    const city = this.submitForm.controls.location.get("city") as FormControl;
-    if (!city.value) {
-      return;
-    }
-    // get the search keyword
-    const cityFilter = this.submitForm.controls.location.get("cityFilter") as FormControl;
+          this.typeProp = this.submitForm.value.basic.propertyType.name;
+          if (groupName != 'apartamento') {
+            if (!groupExist) {
+              this.featuresGroup.push(groupName);
+            }
+          } else if (this.typeProp == 'Apartamento') {
+            if (!groupExist) {
+              this.featuresGroup.push(groupName);
+            }
+          }
 
-    let search = cityFilter.value;
-    if (!search) {
-      this.filteredCities.next(city.value.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-    // filter the banks
-    this.filteredCities.next(
-      city.value.filter(city => city.name.toLowerCase().indexOf(search) > -1)
-    );
-  }
-
-  public initSelectCity() {
-    const city = this.submitForm.controls.location.get("city") as FormControl;
-    const departamet = this.submitForm.controls.location.get("departament") as FormControl;
-
-    const cities = departamet.value.citys
-
-    console.log(city);
-    console.log(cities);
-    city.setValue(cities)
-
-    // load the initial bank list
-    this.filteredCities.next(cities.slice());
-
-    // listen for search field value changes
-    const cityFilter = this.submitForm.controls.location.get("cityFilter") as FormControl;
-    cityFilter.valueChanges
-      .pipe(takeUntil(this._onDestroy))
-      .subscribe(() => {
-        this.filterCities();
-      });
-    this.setInitialValueCities();
-
-  }
-  // -------------------- Address ---------------------------
-  public onSelectCity() {
-
-    this.submitForm.controls.location.get("city").setValue(null, { emitEvent: false });
-    this.initSelectCity();
-
-  }
-  public onSelectNeighborhood() {
-    this.submitForm.controls.address.get("street").setValue(null, { emitEvent: false });
-  }
-
-  private setCurrentPosition() {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.lat = position.coords.latitude;
-        this.lng = position.coords.longitude;
+          featureControl.push(control);
+        });
+        setTimeout(() => {
+          console.log(this.accordion);
+          this.accordion.openAll();
+        }, 1000);
       });
     }
   }
 
-  // -------------------- Additional ---------------------------
-  public buildFeatures() {
+  buildFeatures() {
     const arr = this.features.map((feature) => {
       return this.fb.group({
         id: feature.id,
@@ -339,76 +213,159 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     return this.fb.array(arr);
   }
 
+  // -------------------- Address ---------------------------
+
+  // -------------------- Additional ---------------------------
 
   public reset() {
-    console.log("hola stepper");
-    console.log(this.submitForm.value);
     this.horizontalStepper.reset();
 
-    const videos = <FormArray>this.submitForm.controls.media.get("videos");
-    while (videos.length > 1) {
-      videos.removeAt(0);
-    }
-    const plans = <FormArray>this.submitForm.controls.media.get("plans");
-    while (plans.length > 1) {
-      plans.removeAt(0);
-    }
-    const additionalFeatures = <FormArray>this.submitForm.controls.media.get("additionalFeatures");
-    while (additionalFeatures.length > 1) {
-      additionalFeatures.removeAt(0);
-    }
-
-    this.submitForm.reset({
-      additional: {
-        features: this.features,
-      },
-      media: {
-        featured: false,
-      },
-    });
-  }
-  // -------------------- Media ---------------------------
-  public createVideo(): FormGroup {
-    return this.fb.group({
-      id: null,
-      name: null,
-      link: null,
-    });
-  }
-  public addVideo(): void {
-    const videos = this.submitForm.controls.media.get("videos") as FormArray;
-    videos.push(this.createVideo());
-  }
-  public deleteVideo(index) {
-    const videos = this.submitForm.controls.media.get("videos") as FormArray;
-    videos.removeAt(index);
+    this.submitForm.reset();
   }
 
-  public createPlan(): FormGroup {
-    return this.fb.group({
-      id: null,
-      name: null,
-      desc: null,
-      area: null,
-      rooms: null,
-      baths: null,
-      image: null,
-    });
+  public submitProperty(pathsPhotos?: string[]) {
+    const value = this.submitForm.value;
+
+    const infoProperty: InfoProperty = {
+      stratum: value.infoProperty.stratum,
+      area: value.infoProperty.area,
+      rooms: value.infoProperty.rooms,
+      baths: value.infoProperty.baths,
+      garages: value.infoProperty.garages,
+      interiorFoors: value.infoProperty.interiorFoors,
+      stateProperty: value.infoProperty.stateProperty,
+      features: value.infoProperty.features,
+    };
+
+    const location: Location = {
+      zone: value.location.zone,
+      neighborhood: value.location.neighborhood,
+      address: value.location.address,
+      city: value.location.city,
+    };
+
+    let photos: Photos;
+
+    if (pathsPhotos)
+      photos = {
+        paths: pathsPhotos,
+      };
+
+    const newProperty: PropertyRequest = {
+      title: value.basic.title,
+      premium: value.basic.premium ? true : false,
+      typeProperty: value.basic.propertyType,
+      ownerId: this.idOwner,
+      infoProperty: infoProperty,
+      location: location,
+      photos: photos ? photos : null,
+    };
+
+    const newContract: ContractForRentRequest = {
+      contractValue: value.contract.price,
+      description: `Contrato para realizar el proceso de ${
+        value.contract.typeContract == 'forrent' ? 'arrendar' : value.contract.typeContract == 'forsale' ? 'vender' : ''
+      } la propiedad ${newProperty.title} ubicada en la dirección : ${newProperty.location.address} `,
+      holder: this.idOwner,
+      property: newProperty,
+    };
+    console.log(newContract);
+    const contract = value.contract.typeContract;
+
+    if (contract && contract == 'forrent') {
+      this.contractService
+        .newContractForRent(newContract)
+        .pipe(
+          tap((res) => {
+            if (res) {
+              this.toastr.success(
+                'Registro exitoso',
+                'Su solicitud de servicio queda pendiente para revision por parte de Innovacion inmobiliaria, una vez que se de autorización o solicite algun cambio sera notificado en su correo electronico',
+                {
+                  progressBar: true,
+                }
+              );
+            }
+          })
+        )
+        .subscribe();
+    } else if (contract && contract == 'forsale') {
+      return null;
+    }
   }
 
-  public createFeature(): FormGroup {
-    return this.fb.group({
-      id: null,
-      name: null,
-      value: null,
+  uploadImages() {
+    const valid = this.submitForm.get('media')['controls']['gallery'].invalid;
+
+    if (valid) return null;
+
+    let formData = new FormData();
+    // Optional, if you want to use a DTO on your server to grab this data
+    // Append each of the files
+    this.submitForm.value.media.gallery.forEach((file) => {
+      formData.append('files[]', file.file, file.file.name);
     });
+    this.propertyService
+      .uploadImages(formData)
+      .pipe(
+        tap((res) => {
+          const arrayNameFiles = res;
+          if (arrayNameFiles && arrayNameFiles.length > 0) {
+            this.submitProperty(arrayNameFiles);
+          }
+        })
+      )
+      .subscribe();
   }
-  public addFeature(): void {
-    const features = this.submitForm.controls.media.get("additionalFeatures") as FormArray;
-    features.push(this.createFeature());
+
+  // mat autocomplete select cities
+
+  displayFnDepartament(departament: Departament): string {
+    return departament && departament.name ? departament.name : '';
   }
-  public deleteFeature(index) {
-    const features = this.submitForm.controls.media.get("additionalFeatures") as FormArray;
-    features.removeAt(index);
+
+  _filterDepartament(name: string): Departament[] {
+    const filterValue = name.toLowerCase();
+
+    return this.departaments.filter((option) => option.name.toLowerCase().includes(filterValue));
+  }
+
+  initDepartamentsAutoComplete() {
+    const departamet = this.submitForm.controls.location.get('departament') as FormControl;
+
+    this.filteredOptionsDepartaments = departamet.valueChanges.pipe(
+      startWith(''),
+      map((value) => (typeof value === 'string' ? value : value.name)),
+      map((name) => (name ? this._filterDepartament(name) : this.departaments.slice()))
+    );
+  }
+
+  onSelectCity(event?) {
+    this.cities = null;
+    const city = this.submitForm.controls.location.get('city') as FormControl;
+
+    const departamet = this.submitForm.controls.location.get('departament') as FormControl;
+    this.cities = departamet.value.citys;
+    this.initCityAutoComplete();
+  }
+
+  // mat autocomplete select cities
+  displayFnCity(city: City): string {
+    return city && city.name ? city.name : '';
+  }
+
+  _filterCity(name: string): City[] {
+    const filterValue = name.toLowerCase();
+    return this.cities.filter((option) => option.name.toLowerCase().includes(filterValue));
+  }
+
+  initCityAutoComplete() {
+    const city = this.submitForm.controls.location.get('city') as FormControl;
+
+    this.filteredOptionsCities = city.valueChanges.pipe(
+      startWith(''),
+      map((value) => (typeof value === 'string' ? value : value.name)),
+      map((name) => (name ? this._filterCity(name) : this.cities.slice()))
+    );
   }
 }

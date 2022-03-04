@@ -44,14 +44,14 @@ import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   wheelPropagation: false,
-  suppressScrollX: true               
+  suppressScrollX: true,
 };
 
-import { AgmCoreModule } from '@agm/core'; 
+import { AgmCoreModule } from '@agm/core';
 import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
- 
+
 import { PipesModule } from '../theme/pipes/pipes.module';
-import { DirectivesModule } from '../theme/directives/directives.module'; 
+import { DirectivesModule } from '../theme/directives/directives.module';
 
 import { HeaderImageComponent } from './header-image/header-image.component';
 import { HeaderCarouselComponent } from './header-carousel/header-carousel.component';
@@ -66,16 +66,16 @@ import { PropertiesCarouselComponent } from './properties-carousel/properties-ca
 import { ClientsComponent } from './clients/clients.component';
 import { GetInTouchComponent } from './get-in-touch/get-in-touch.component';
 import { CommentsComponent } from './comments/comments.component';
-import { TestimonialsComponent } from './testimonials/testimonials.component'; 
+import { TestimonialsComponent } from './testimonials/testimonials.component';
 import { OurAgentsComponent } from './our-agents/our-agents.component';
 import { MissionComponent } from './mission/mission.component';
 import { OurServicesComponent } from './our-services/our-services.component';
 import { LogoComponent } from './logo/logo.component';
 import { HeaderMapComponent } from './header-map/header-map.component';
-import { HeaderVideoComponent } from './header-video/header-video.component'; 
+import { HeaderVideoComponent } from './header-video/header-video.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
-import { AlertDialogComponent } from './alert-dialog/alert-dialog.component'; 
-import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-header-controls.component'; 
+import { AlertDialogComponent } from './alert-dialog/alert-dialog.component';
+import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-header-controls.component';
 
 @NgModule({
   imports: [
@@ -123,7 +123,7 @@ import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-h
     AgmCoreModule,
     AgmSnazzyInfoWindowModule,
     PipesModule,
-    DirectivesModule   
+    DirectivesModule,
   ],
   exports: [
     RouterModule,
@@ -169,7 +169,7 @@ import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-h
     AgmCoreModule,
     AgmSnazzyInfoWindowModule,
     PipesModule,
-    DirectivesModule, 
+    DirectivesModule,
     LogoComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,
@@ -184,17 +184,17 @@ import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-h
     ClientsComponent,
     GetInTouchComponent,
     CommentsComponent,
-    TestimonialsComponent,   
-    OurAgentsComponent, 
-    MissionComponent, 
+    TestimonialsComponent,
+    OurAgentsComponent,
+    MissionComponent,
     OurServicesComponent,
     HeaderMapComponent,
     HeaderVideoComponent,
     ConfirmDialogComponent,
     AlertDialogComponent,
-    DialogHeaderControlsComponent  
+    DialogHeaderControlsComponent,
   ],
-  declarations: [ 
+  declarations: [
     LogoComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,
@@ -209,18 +209,16 @@ import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-h
     ClientsComponent,
     GetInTouchComponent,
     CommentsComponent,
-    TestimonialsComponent,   
-    OurAgentsComponent, 
-    MissionComponent, 
-    OurServicesComponent, 
-    HeaderMapComponent, 
+    TestimonialsComponent,
+    OurAgentsComponent,
+    MissionComponent,
+    OurServicesComponent,
+    HeaderMapComponent,
     HeaderVideoComponent,
     ConfirmDialogComponent,
     AlertDialogComponent,
-    DialogHeaderControlsComponent
-  ], 
-  providers:[
-    { provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG }
-  ]
+    DialogHeaderControlsComponent,
+  ],
+  providers: [{ provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG }],
 })
-export class SharedModule { }
+export class SharedModule {}

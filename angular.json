@@ -30,7 +30,7 @@
         }
       },
       "root": "",
-      "sourceRoot": "src", 
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
@@ -47,10 +47,11 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": [ 
+            "allowedCommonJsDependencies": [
               "ngx-embed-video"
             ],
             "vendorChunk": true,
@@ -186,7 +187,7 @@
           }
         }
       }
-    } 
+    }
   },
   "defaultProject": "inmov-landig"
 }
