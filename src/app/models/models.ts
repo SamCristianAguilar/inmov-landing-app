@@ -20,6 +20,9 @@ export class Departament {
 export class ContractForRentRequest {
   constructor(public contractValue: number, public description: string, public holder: number, public property: PropertyRequest) {}
 }
+export class ContractForSaleRequest {
+  constructor(public contractValue: number, public description: string, public holder: number, public property: PropertyRequest) {}
+}
 export class PropertyRequest {
   constructor(
     public title: string,
@@ -41,14 +44,34 @@ export class InfoProperty {
     public garages: number,
     public interiorFoors: number,
     public stateProperty: StateProperty,
-    public features: Feature[]
+    public features: Feature[],
+    public id?: number
   ) {}
 }
 
 export class Location {
-  constructor(public zone: string, public neighborhood: string, public address: string, public city: City) {}
+  constructor(
+    public zone: string,
+    public zipCode: string,
+    public neighborhood: string,
+    public address: string,
+    public city: City,
+    public id?: number
+  ) {}
 }
 
 export class Photos {
   constructor(public paths: string[]) {}
 }
+
+export class PhotosResponse {
+  constructor(id: number, pathName: string) {}
+}
+
+// export class prop {
+//   constructor(
+
+//   )
+// }
+
+// id, title, premium, createAt, updateAt, location, infoProperty, photos, forRentContracts, forSaleContracts,

@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 export class Settings {
   constructor(
@@ -31,15 +31,15 @@ export class Settings {
 @Injectable()
 export class AppSettings {
   public settings = new Settings(
-    "Inmov", // theme name
-    "red", // blue, green, red, pink, purple, grey, orange-dark
+    'Inmov', // theme name
+    'red', // blue, green, red, pink, purple, grey, orange-dark
     1, // 1 or 2
     true, // true = sticky, false = not sticky
-    "image", // default, image, carousel, map, video
+    'image', // default, image, carousel, map, video
     false, // true = rtl, false = ltr
     1, //  1, 2  or 3
     false, //  true = search on button click
-    "USD", // USD, EUR
+    'USD', // USD, EUR
 
     //NOTE:  don't change additional options values, they used for theme performance
     false,

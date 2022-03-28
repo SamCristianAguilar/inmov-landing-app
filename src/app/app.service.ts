@@ -29,8 +29,8 @@ export class AppService {
   );
 
   public url = environment.url + '/assets/data/';
-  public urlBack = 'http://localhost:3050';
-  public apiKey = 'AIzaSyAO7Mg2Cs1qzo_3jkKkZAKY6jtwIlm41-I';
+  public urlBack = environment.urlBack;
+  public apiKey = 'AIzaSyC8d-iDu3YQME51n2bWY7_3p1pzEWFnp6w';
 
   constructor(
     public http: HttpClient,

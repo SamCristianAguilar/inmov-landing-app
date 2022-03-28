@@ -304,17 +304,36 @@
 
               <div fxFlex="100" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
+                  <mat-icon matPrefix class="mr-1 text-muted">location_on</mat-icon>
                   <mat-label>Dirección</mat-label>
-                  <input
-                    matInput="matInput"
-                    placeholder="Ingrese la dirección de forma detallada"
-                    formControlName="address"
-                    required
-                    autocomplete="off"
-                  />
+                  <input matInput placeholder="Enter a location" formControlName="address" autocomplete="off" #addressAutocomplete />
+                  <button
+                    *ngIf="submitForm.get('location')['controls'].address.value"
+                    mat-button
+                    matSuffix
+                    mat-icon-button
+                    (click)="submitForm.get('location')['controls'].address.setValue(null)"
+                    type="button"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
                   <mat-error *ngIf="submitForm.get('location')['controls'].address.errors?.required"> Campo requerido</mat-error>
                 </mat-form-field>
               </div>
+
+              <div fxFlex="100" class="px-2 mb-4">
+                <agm-map
+                  [latitude]="lat"
+                  [longitude]="lng"
+                  [zoom]="zoom"
+                  [mapTypeControl]="true"
+                  [fullscreenControl]="true"
+                  (mapClick)="onMapClick($event)"
+                >
+                  <agm-marker [latitude]="lat" [longitude]="lng" [markerDraggable]="true" (markerClick)="onMarkerClick($event)"></agm-marker>
+                </agm-map>
+              </div>
+
               <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Departamento</mat-label>
@@ -345,7 +364,7 @@
               </div>
               <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Zona</mat-label>
+                  <mat-label>Zona - Localidad</mat-label>
                   <input matInput="matInput" formControlName="zone" required="required" autocomplete="off" />
                   <mat-error *ngIf="submitForm.get('location')['controls'].zone.errors?.required"> Campo requerido</mat-error>
                 </mat-form-field>
@@ -355,6 +374,13 @@
                   <mat-label>Barrio</mat-label>
                   <input matInput="matInput" placeholder="Zona" formControlName="neighborhood" required="required" autocomplete="off" />
                   <mat-error *ngIf="submitForm.get('location')['controls'].neighborhood.errors?.required"> Campo requerido</mat-error>
+                </mat-form-field>
+              </div>
+              <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Código Postal</mat-label>
+                  <input matInput="matInput" placeholder="Zona" formControlName="zipCode" required="required" autocomplete="off" />
+                  <mat-error *ngIf="submitForm.get('location')['controls'].zipCode.errors?.required"> Campo requerido</mat-error>
                 </mat-form-field>
               </div>
 

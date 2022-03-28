@@ -76,6 +76,8 @@ import { HeaderVideoComponent } from './header-video/header-video.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { AlertDialogComponent } from './alert-dialog/alert-dialog.component';
 import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-header-controls.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { SpinnerComponent } from './spinner/spinner.component';
 
 @NgModule({
   imports: [

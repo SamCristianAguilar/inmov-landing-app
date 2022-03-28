@@ -1,4 +1,5 @@
 export const environment = {
-    production: true,
-    url: 'http://localhost:4000'
+  production: true,
+  url: '',
+  urlBack: 'https://back.innovacion-inmobiliaria.com',
 };

@@ -27,7 +27,7 @@ import { AppRoutingModule } from './app.routing';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 import { AppSettings } from './app.settings';
-import { AppInterceptor } from './theme/utils/app-interceptor';
+import { AppInterceptor } from './interceptor/app-interceptor';
 
 import { PagesComponent } from './pages/pages.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
@@ -44,7 +44,8 @@ import { FooterComponent } from './theme/components/footer/footer.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
-import { NgxMaskModule } from 'ngx-mask';
+import { SpinnerComponent } from './shared/spinner/spinner.component';
+import { SpinnerInterceptor } from './interceptor/spinner.interceptor';
 
 @NgModule({
   declarations: [
@@ -62,15 +63,17 @@ import { NgxMaskModule } from 'ngx-mask';
     VerticalMenuComponent,
     FooterComponent,
     LockScreenComponent,
+    SpinnerComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     BrowserAnimationsModule,
+    NgxSpinnerModule,
     ToastrModule.forRoot(), // ToastrModule added
     FormsModule,
     HttpClientModule,
     AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyAO7Mg2Cs1qzo_3jkKkZAKY6jtwIlm41-I',
+      apiKey: 'AIzaSyC8d-iDu3YQME51n2bWY7_3p1pzEWFnp6w',
       libraries: ['places'],
     }),
     TranslateModule.forRoot({
@@ -86,12 +89,11 @@ import { NgxMaskModule } from 'ngx-mask';
     InputFileModule.forRoot(config),
     AppRoutingModule,
     SharedModule,
-    NgxSpinnerModule,
   ],
   providers: [
     AppSettings,
     { provide: OverlayContainer, useClass: CustomOverlayContainer },
-    { provide: HTTP_INTERCEPTORS, useClass: AppInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: SpinnerInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

@@ -40,7 +40,7 @@
     "ngx-mat-select-search": "^4.0.2",
     "ngx-perfect-scrollbar": "10.1.1",
     "ngx-progressbar": "6.1.1",
-    "ngx-spinner": "^13.0.0",
+    "ngx-spinner": "^13.1.1",
     "ngx-swiper-wrapper": "10.0.0",
     "ngx-toastr": "^14.2.1",
     "rxjs": "7.4.0",

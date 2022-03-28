@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Departament, Feature, Photos, PropertyRequest, StateProperty, TypeProperty } from '../models/models';
@@ -8,47 +9,37 @@ import { Departament, Feature, Photos, PropertyRequest, StateProperty, TypePrope
   providedIn: 'root',
 })
 export class PropertyService {
-  constructor(public http: HttpClient) {}
+  constructor(public http: HttpClient, public toastr: ToastrService) {}
 
-  public urlBack = '';
+  private urlBack = environment.urlBack;
 
   public uploadImages(gallery: {}): Observable<any> {
-    return this.http.post<any>(`${this.urlBack}/photos/`, gallery).pipe(catchError(this.handlerError));
+    return this.http.post<any>(`${this.urlBack}/photos/`, gallery);
   }
 
   public getPropertyTypes(): Observable<TypeProperty[]> {
-    console.log(this.urlBack);
-    const aux = this.http.get<TypeProperty[]>(this.urlBack + '/type-property').pipe(catchError(this.handlerError));
-    console.log(aux);
-    return aux;
+    return this.http.get<TypeProperty[]>(`${this.urlBack}/type-property`);
   }
 
   public getFeatures() {
-    return this.http.get<Feature[]>(this.urlBack + '/features').pipe(catchError(this.handlerError));
+    return this.http.get<Feature[]>(this.urlBack + '/features');
   }
 
   public getStateProperty() {
-    return this.http.get<StateProperty[]>(this.urlBack + '/state-property').pipe(catchError(this.handlerError));
+    return this.http.get<StateProperty[]>(this.urlBack + '/state-property');
   }
   public getAllDepartaments() {
-    return this.http.get<Departament[]>(this.urlBack + '/departament').pipe(catchError(this.handlerError));
+    return this.http.get<Departament[]>(this.urlBack + '/departament');
   }
 
   private handlerError(err: HttpErrorResponse): Observable<never> {
     console.log(err);
-    const serverErrorMessage = err.error;
-
+    const serverErrorMessage = err.error.message ? err.error.message : err.message ? err.message : 'Error de petición Http';
+    console.log('mesaage erro', serverErrorMessage);
     if (serverErrorMessage) {
-      window.alert(err.error.message);
-      // Swal.fire({
-      //   icon: 'error',
-      //   confirmButtonColor: '#2f323a',
-      //   title: 'Error al procesar la solicitud',
-      //   html: `<h4>${err.error.message}</h4>`,
-      //   width: 10000,
-      //   padding: '2em',
-      //   showConfirmButton: true,
-      // });
+      this.toastr.success(serverErrorMessage, 'Error al completar la petición', {
+        progressBar: true,
+      });
     }
     return throwError(() => new Error(serverErrorMessage));
   }

@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild, ElementRef, NgZone, ViewEncapsulation, Af
 import { MatStepper } from '@angular/material/stepper';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { AppService } from 'src/app/app.service';
-import { map, Observable, startWith, tap } from 'rxjs';
+import { catchError, map, Observable, of, startWith, tap, throwError } from 'rxjs';
 import { City, ContractForRentRequest, Departament, InfoProperty, Location, Photos, PropertyRequest } from 'src/app/models/models';
 import { MatSelect } from '@angular/material/select';
 
@@ -15,6 +15,9 @@ import { LenghtArrayFiles } from 'src/app/common/validators/length-files';
 import { ToastrService } from 'ngx-toastr';
 import { ContractService } from 'src/app/services/contract.service';
 import { MatAccordion } from '@angular/material/expansion';
+import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MapsAPILoader } from '@agm/core';
 
 @Component({
   selector: 'app-submit-property',
@@ -47,9 +50,9 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   public neighborhoods = [];
   public streets = [];
   public typeStreets = [];
-  public lat: number = 40.678178;
-  public lng: number = -73.944158;
-  public zoom: number = 12;
+  public lat: number = 4.647736724380013;
+  public lng: number = -74.06369097792818;
+  public zoom: number = 20;
   public alertPremiumMessage =
     'Recuerde que si marca la opción prémium esto indica forma automática que usted contrata los servicios de innovación inmobiliaria para todo lo referente a la toma fotografías y videos de su propiedad que a su vez van a ser utilizadas en nuestra plataforma.';
   private isValidEmail = /\S+@\S+\.\S+/;
@@ -62,50 +65,24 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     public propertyService: PropertyService,
     public contractService: ContractService,
     private fb: FormBuilder,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router,
+    private mapsAPILoader: MapsAPILoader,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
     this.propertyStatuses = this.appService.getPropertyStatuses();
-    this.cities = this.appService.getCities();
+    // this.cities = this.appService.getCities();
     this.neighborhoods = this.appService.getNeighborhoods();
     this.streets = this.appService.getStreets();
     this.typeStreets = TYPE_STREET.sort();
     this.typeContract = TYPE_CONTRACT.sort();
-    this.submitForm = this.fb.group({
-      contract: this.fb.group({
-        typeContract: [null, Validators.required],
-        price: [null, Validators.required],
-      }),
-
-      basic: this.fb.group({
-        title: [null, Validators.required],
-        propertyType: [null, Validators.required],
-        premium: [null, Validators.required],
-      }),
-      infoProperty: this.fb.group({
-        stratum: [null, Validators.required],
-        area: [null, Validators.required],
-        rooms: [null, Validators.required],
-        baths: [null, Validators.required],
-        garages: [null, Validators.required],
-        interiorFoors: [null, Validators.required],
-        stateProperty: [null, Validators.required],
-        features: this.buildFeatures(),
-      }),
-      location: this.fb.group({
-        departament: ['null', [Validators.required, RequireMatch]],
-        city: [{ value: null, disabled: false }, [Validators.required, RequireMatch]],
-        address: [null, Validators.required],
-        zone: [null, Validators.required],
-        neighborhood: [null, Validators.required],
-      }),
-      media: this.fb.group({
-        gallery: [null, [Validators.required, LenghtArrayFiles]],
-      }),
-    });
+    this.submitForm = this.buildForm();
     this.getTypeProperty();
     this.getDepartament();
+    this.getFeatures();
+    this.placesAutocomplete();
   }
   ngAfterViewInit() {}
 
@@ -117,6 +94,14 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       .pipe(
         tap((res) => {
           this.propertyTypes = res;
+        }),
+        catchError((error: HttpErrorResponse): Observable<any> => {
+          if (error) {
+            this.toastr.error('Error al obtener los tipos de propiedad', 'Error de petición', {
+              progressBar: true,
+            });
+            return of(null);
+          }
         })
       )
       .subscribe();
@@ -128,6 +113,14 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       .pipe(
         tap((res) => {
           this.statesProperty = res;
+        }),
+        catchError((error: HttpErrorResponse): Observable<any> => {
+          if (error) {
+            this.toastr.error('Error al obtener los estados de propiedad.', 'Error de petición', {
+              progressBar: true,
+            });
+            return of(null);
+          }
         })
       )
       .subscribe();
@@ -140,12 +133,20 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
         tap((res) => {
           this.departaments = res;
           this.initDepartamentsAutoComplete();
+        }),
+        catchError((error: HttpErrorResponse): Observable<any> => {
+          if (error) {
+            this.toastr.error('Error al obtener el listado de departamentos.', 'Error de petición', {
+              progressBar: true,
+            });
+            return of(null);
+          }
         })
       )
       .subscribe();
   }
 
-  //Evento para detectar el cambio de step
+  //Evento para detectar el cambio de step ***************************************************
   onSelectionChange(e: any) {
     e.previouslySelectedStep._editable = false;
     this.lengthStepper = this.horizontalStepper.steps.length;
@@ -153,7 +154,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     // }
 
     if (e.selectedIndex == 2) {
-      this.getFeatures();
+      this.buildFeaturesFormControl();
       this.getStateProperty();
     }
     if (e.selectedIndex == 3) {
@@ -168,38 +169,54 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   //Creacion de la caracteristicas de forma dinamica
   getFeatures(): any {
     if (this.features.length === 0) {
-      this.propertyService.getFeatures().subscribe((res) => {
-        this.features = res;
-        const featureControl = this.submitForm.controls.infoProperty.get('features') as FormArray;
-        this.features.forEach((feature) => {
-          const control = this.fb.group({
-            id: feature.id,
-            name: feature.name,
-            selected: feature.selected,
-            group: feature.group,
-          });
-          const groupName = feature.group.name;
-          const groupExist = this.featuresGroup.find((group) => group === groupName);
-
-          this.typeProp = this.submitForm.value.basic.propertyType.name;
-          if (groupName != 'apartamento') {
-            if (!groupExist) {
-              this.featuresGroup.push(groupName);
+      this.propertyService
+        .getFeatures()
+        .pipe(
+          tap((res) => {
+            this.features = res;
+          }),
+          catchError((error: HttpErrorResponse): Observable<any> => {
+            if (error) {
+              this.toastr.error('Error al obtener el listado de caracteristicas.', 'Error de petición', {
+                progressBar: true,
+              });
+              return of(null);
             }
-          } else if (this.typeProp == 'Apartamento') {
-            if (!groupExist) {
-              this.featuresGroup.push(groupName);
-            }
-          }
-
-          featureControl.push(control);
-        });
-        setTimeout(() => {
-          console.log(this.accordion);
-          this.accordion.openAll();
-        }, 1000);
-      });
+          })
+        )
+        .subscribe();
     }
+  }
+  buildFeaturesFormControl() {
+    const featureControl = this.submitForm.controls.infoProperty.get('features') as FormArray;
+    featureControl.clear();
+    this.featuresGroup = [];
+    this.features.forEach((feature) => {
+      const control = this.fb.group({
+        id: feature.id,
+        name: feature.name,
+        selected: feature.selected,
+        group: feature.group,
+      });
+      const groupName = feature.group.name;
+      const groupExist = this.featuresGroup.find((group) => group === groupName);
+
+      this.typeProp = this.submitForm.value.basic.propertyType.name;
+      if (groupName != 'apartamento') {
+        if (!groupExist) {
+          this.featuresGroup.push(groupName);
+        }
+      } else if (this.typeProp == 'Apartamento') {
+        if (!groupExist) {
+          this.featuresGroup.push(groupName);
+        }
+      }
+
+      featureControl.push(control);
+    });
+    setTimeout(() => {
+      this.accordion.openAll();
+    }, 2000);
   }
 
   buildFeatures() {
@@ -219,7 +236,6 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
 
   public reset() {
     this.horizontalStepper.reset();
-
     this.submitForm.reset();
   }
 
@@ -239,6 +255,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
 
     const location: Location = {
       zone: value.location.zone,
+      zipCode: value.location.zipCode ? value.location.zipCode : null,
       neighborhood: value.location.neighborhood,
       address: value.location.address,
       city: value.location.city,
@@ -271,7 +288,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     };
     console.log(newContract);
     const contract = value.contract.typeContract;
-
+    debugger;
     if (contract && contract == 'forrent') {
       this.contractService
         .newContractForRent(newContract)
@@ -279,18 +296,58 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
           tap((res) => {
             if (res) {
               this.toastr.success(
-                'Registro exitoso',
                 'Su solicitud de servicio queda pendiente para revision por parte de Innovacion inmobiliaria, una vez que se de autorización o solicite algun cambio sera notificado en su correo electronico',
+                'Registro exitoso',
                 {
                   progressBar: true,
                 }
               );
+              this.router.navigate(['/']);
+              this.reset();
+            }
+          }),
+          catchError((error: HttpErrorResponse): Observable<any> => {
+            if (error) {
+              this.toastr.error(`${error.error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
+                progressBar: true,
+                closeButton: true,
+                disableTimeOut: true,
+              });
+              this.reset();
+              return of(null);
             }
           })
         )
         .subscribe();
     } else if (contract && contract == 'forsale') {
-      return null;
+      this.contractService
+        .newContractForSale(newContract)
+        .pipe(
+          tap((res) => {
+            if (res) {
+              this.toastr.success(
+                'Su solicitud de servicio queda pendiente para revision por parte de Innovacion inmobiliaria, una vez que se de autorización o solicite algun cambio sera notificado en su correo electronico',
+                'Registro exitoso',
+                {
+                  progressBar: true,
+                }
+              );
+              this.router.navigate(['/']);
+              this.reset();
+            }
+          }),
+          catchError((error: HttpErrorResponse): Observable<any> => {
+            if (error) {
+              this.toastr.error(`${error.error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
+                progressBar: true,
+              });
+              this.reset();
+
+              return of(null);
+            }
+          })
+        )
+        .subscribe();
     }
   }
 
@@ -313,9 +370,119 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
           if (arrayNameFiles && arrayNameFiles.length > 0) {
             this.submitProperty(arrayNameFiles);
           }
+        }),
+        catchError((error: HttpErrorResponse): Observable<any> => {
+          if (error) {
+            this.toastr.error(`${error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
+              progressBar: true,
+            });
+            return of(null);
+          }
         })
       )
       .subscribe();
+  }
+
+  // -------------------- Address ---------------------------
+
+  private setCurrentPosition() {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.lat = position.coords.latitude;
+        this.lng = position.coords.longitude;
+      });
+    }
+  }
+  private placesAutocomplete() {
+    this.mapsAPILoader.load().then(() => {
+      let autocomplete = new google.maps.places.Autocomplete(this.addressAutocomplete.nativeElement, {
+        types: ['address'],
+        componentRestrictions: { country: 'co' },
+      });
+      autocomplete.addListener('place_changed', () => {
+        this.ngZone.run(() => {
+          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+          if (place.geometry === undefined || place.geometry === null) {
+            return;
+          }
+          this.lat = place.geometry.location.lat();
+          this.lng = place.geometry.location.lng();
+          this.getAddress();
+        });
+      });
+    });
+  }
+
+  public getAddress() {
+    this.appService.getAddress(this.lat, this.lng).subscribe((response) => {
+      if (response['results'].length) {
+        let address = response['results'][0].formatted_address;
+        let addressMin = String(address).split(',')[0];
+        this.submitForm.controls.location.get('address').setValue(addressMin);
+        this.setAddresses(response['results'][0]);
+      }
+    });
+  }
+  public onMapClick(e: any) {
+    this.lat = e.coords.lat;
+    this.lng = e.coords.lng;
+    this.getAddress();
+  }
+  public onMarkerClick(e: any) {
+    console.log(e);
+  }
+
+  public setAddresses(result) {
+    this.submitForm.controls.location.get('city').setValue(null);
+
+    let cityName, departament, locality, neighborhood, zipCode;
+
+    const data = result.address_components;
+
+    data.forEach((item) => {
+      if (item.types.indexOf('administrative_area_level_1') > -1) {
+        departament = item.long_name;
+      }
+      if (item.types.indexOf('locality') > -1) {
+        cityName = item.long_name;
+      }
+      if (item.types.indexOf('sublocality_level_1') > -1) {
+        locality = item.long_name;
+      }
+      if (item.types.indexOf('neighborhood') > -1) {
+        neighborhood = item.long_name;
+      }
+      if (item.types.indexOf('postal_code') > -1) {
+        zipCode = item.long_name;
+      }
+    });
+
+    if (departament) {
+      if (this.departaments.filter((dep) => dep.name == departament)[0]) {
+        this.submitForm.controls.location.get('departament').setValue(this.departaments.filter((dep) => dep.name == departament)[0]);
+        this.onSelectCity();
+      }
+    }
+
+    if (cityName) {
+      if (this.cities.filter((city) => city.name == cityName)[0]) {
+        this.submitForm.controls.location.get('city').setValue(this.cities.filter((city) => city.name == cityName)[0]);
+      }
+    }
+
+    if (locality) {
+      this.submitForm.controls.location.get('zone').setValue(locality);
+    }
+
+    if (neighborhood) {
+      this.submitForm.controls.location.get('neighborhood').setValue(neighborhood);
+    }
+
+    if (zipCode) {
+      this.submitForm.controls.location.get('zipCode').setValue(zipCode);
+    }
+
+    console.log(cityName, departament, locality, neighborhood, zipCode);
   }
 
   // mat autocomplete select cities
@@ -335,15 +502,13 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.filteredOptionsDepartaments = departamet.valueChanges.pipe(
       startWith(''),
-      map((value) => (typeof value === 'string' ? value : value.name)),
+      map((value) => (typeof value === 'string' ? value : value ? value.name : null)),
       map((name) => (name ? this._filterDepartament(name) : this.departaments.slice()))
     );
   }
 
   onSelectCity(event?) {
     this.cities = null;
-    const city = this.submitForm.controls.location.get('city') as FormControl;
-
     const departamet = this.submitForm.controls.location.get('departament') as FormControl;
     this.cities = departamet.value.citys;
     this.initCityAutoComplete();
@@ -364,8 +529,44 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.filteredOptionsCities = city.valueChanges.pipe(
       startWith(''),
-      map((value) => (typeof value === 'string' ? value : value.name)),
+      map((value) => (typeof value === 'string' ? value : value ? value.name : null)),
       map((name) => (name ? this._filterCity(name) : this.cities.slice()))
     );
+  }
+
+  buildForm() {
+    return this.fb.group({
+      contract: this.fb.group({
+        typeContract: [null, Validators.required],
+        price: [null, Validators.required],
+      }),
+
+      basic: this.fb.group({
+        title: [null, Validators.required],
+        propertyType: [null, Validators.required],
+        premium: [null, Validators.required],
+      }),
+      infoProperty: this.fb.group({
+        stratum: [null, Validators.required],
+        area: [null, Validators.required],
+        rooms: [null, Validators.required],
+        baths: [null, Validators.required],
+        garages: [null, Validators.required],
+        interiorFoors: [null, Validators.required],
+        stateProperty: [null, Validators.required],
+        features: this.buildFeatures(),
+      }),
+      location: this.fb.group({
+        departament: ['null', [Validators.required, RequireMatch]],
+        city: [null, [Validators.required, RequireMatch]],
+        address: [null, Validators.required],
+        zipCode: [null, Validators.required],
+        zone: [null, Validators.required],
+        neighborhood: [null, Validators.required],
+      }),
+      media: this.fb.group({
+        gallery: [null, [Validators.required, LenghtArrayFiles]],
+      }),
+    });
   }
 }

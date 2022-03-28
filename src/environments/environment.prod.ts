@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  url: ''
+  url: '',
+  urlBack: 'https://back.innovacion-inmobiliaria.com',
 };
