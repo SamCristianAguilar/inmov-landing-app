@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Departament, Feature, Photos, PropertyRequest, StateProperty, TypeProperty } from '../models/models';
+import { Departament, Feature, Photos, PropertyRequest, propertyResponse, StateProperty, TypeProperty } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +15,9 @@ export class PropertyService {
 
   public uploadImages(gallery: {}): Observable<any> {
     return this.http.post<any>(`${this.urlBack}/photos/`, gallery);
+  }
+  public getProperties(state?: string): Observable<propertyResponse[]> {
+    return this.http.get<propertyResponse[]>(`${this.urlBack}/property${state ? '?state=' + state : ''}`);
   }
 
   public getPropertyTypes(): Observable<TypeProperty[]> {

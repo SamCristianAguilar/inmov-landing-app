@@ -288,7 +288,6 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     };
     console.log(newContract);
     const contract = value.contract.typeContract;
-    debugger;
     if (contract && contract == 'forrent') {
       this.contractService
         .newContractForRent(newContract)

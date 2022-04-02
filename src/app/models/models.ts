@@ -1,77 +1,129 @@
 export class TypeProperty {
-  constructor(public id: number, public name: string) {}
+  public id: number;
+  public name: string;
 }
 
 export class Feature {
-  constructor(public id: number, public name: string) {}
+  public id: number;
+  public name: string;
+  public group: FeatureGroup;
 }
 
+export class FeatureGroup {
+  public id: number;
+  public name: string;
+}
 export class StateProperty {
-  constructor(public id: number, public name: string) {}
+  public id: number;
+  public name: string;
 }
 
 export class City {
-  constructor(public id: number, public name: string) {}
+  public id: number;
+  public name: string;
 }
 export class Departament {
-  constructor(public id: number, public name: string, public citys: City[]) {}
+  public id: number;
+  public name: string;
+  public citys: City[];
 }
 
 export class ContractForRentRequest {
-  constructor(public contractValue: number, public description: string, public holder: number, public property: PropertyRequest) {}
+  public contractValue: number;
+  public description: string;
+  public holder: number;
+  public property: PropertyRequest;
 }
 export class ContractForSaleRequest {
-  constructor(public contractValue: number, public description: string, public holder: number, public property: PropertyRequest) {}
+  public contractValue: number;
+  public description: string;
+  public holder: number;
+  public property: PropertyRequest;
 }
 export class PropertyRequest {
-  constructor(
-    public title: string,
-    public premium: boolean,
-    public typeProperty: TypeProperty,
-    public ownerId: number,
-    public infoProperty: InfoProperty,
-    public location: Location,
-    public photos: Photos
-  ) {}
+  public title: string;
+  public premium: boolean;
+  public typeProperty: TypeProperty;
+  public ownerId: number;
+  public infoProperty: InfoProperty;
+  public location: Location;
+  public photos: Photos;
 }
 
 export class InfoProperty {
-  constructor(
-    public stratum: number,
-    public area: number,
-    public rooms: number,
-    public baths: number,
-    public garages: number,
-    public interiorFoors: number,
-    public stateProperty: StateProperty,
-    public features: Feature[],
-    public id?: number
-  ) {}
+  public stratum: number;
+  public area: number;
+  public rooms: number;
+  public baths: number;
+  public garages: number;
+  public interiorFoors: number;
+  public stateProperty: StateProperty;
+  public features: Feature[];
+  public id?: number;
 }
 
 export class Location {
-  constructor(
-    public zone: string,
-    public zipCode: string,
-    public neighborhood: string,
-    public address: string,
-    public city: City,
-    public id?: number
-  ) {}
+  public zone: string;
+  public zipCode: string;
+  public neighborhood: string;
+  public address: string;
+  public city: City;
+  public id?: number;
 }
 
 export class Photos {
-  constructor(public paths: string[]) {}
+  public paths: string[];
 }
 
 export class PhotosResponse {
-  constructor(id: number, pathName: string) {}
+  public id: number;
+  public pathName: string;
 }
 
-// export class prop {
-//   constructor(
+export class userResponse {
+  public id: number;
+  public docNumber: string;
+  public name: string;
+  public secondName: string;
+  public firstLastName: string;
+  public secondLastName: string;
+  public createAt: Date;
+  public updateAt: Date;
+}
+export class Owner extends userResponse {}
+export class Holder extends userResponse {}
 
-//   )
-// }
+export class StateContract {
+  public name: string;
+  public id?: number;
+}
+export class ContractRes {
+  public description: string;
+  public holder: Holder;
+  public state: StateContract;
+  public updateAt: Date;
+  public createAt: Date;
+  public id: number;
+}
+export class forRentContractsRes extends ContractRes {
+  public contractValue: string;
+}
+export class forSaleContractsRes extends ContractRes {
+  public contractValue: string;
+}
+
+export class propertyResponse {
+  public id: number;
+  public title: string;
+  public premium: boolean;
+  public createAt: Date;
+  public updateAt: Date;
+  public owner: Owner;
+  public location: Location;
+  public infoProperty: InfoProperty;
+  public photos: PhotosResponse[];
+  public forRentContracts: forRentContractsRes[];
+  public forSaleContracts: forSaleContractsRes[];
+}
 
 // id, title, premium, createAt, updateAt, location, infoProperty, photos, forRentContracts, forSaleContracts,
