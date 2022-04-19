@@ -1,70 +1,147 @@
 <div class="p-3">
-    <div class="theme-container">
-  
-      <div fxLayout="row" fxLayoutAlign="center center" class="my-3">
-          <mat-card [style.max-width.px]="500">
-            <div fxLayout="column" fxLayoutAlign="center center" class="text-center">  
-              <h1 class="uppercase">Register</h1>  
-              <a mat-button routerLink="/login" color="accent" class="w-100">Already have an account? Sign in!</a>  
-            </div>
-            <form [formGroup]="registerForm" (ngSubmit)="onRegisterFormSubmit(registerForm.value)"> 
-                <mat-form-field  appearance="outline" class="w-100 mt-2">
-                    <mat-icon matPrefix class="mr-1 text-muted">group</mat-icon>
-                    <mat-label>User type</mat-label>
-                    <mat-select placeholder="Select User Type" formControlName="userType">
-                        <mat-option *ngFor="let type of userTypes" [value]="type">
-                            {{type.name}}
-                        </mat-option>
-                    </mat-select>
-                    <mat-error *ngIf="registerForm.controls.userType.errors?.required">User type is required</mat-error>                   
-                </mat-form-field>
-                <mat-form-field  appearance="outline" class="w-100 mt-2">
-                    <mat-icon matPrefix class="mr-1 text-muted">person</mat-icon>
-                    <mat-label>Username</mat-label>
-                    <input matInput placeholder="Username" formControlName="username" required>
-                    <mat-error *ngIf="registerForm.controls.username.errors?.required">Username is required</mat-error>
-                    <mat-error *ngIf="registerForm.controls.username.hasError('minlength')">Username isn't long enough, minimum of 6 characters</mat-error>
-                </mat-form-field>
-                <mat-form-field  appearance="outline" class="w-100 mt-1">
-                    <mat-icon matPrefix class="mr-1 text-muted">email</mat-icon>
-                    <mat-label>Email</mat-label>
-                    <input matInput placeholder="Email" formControlName="email" required>
-                    <mat-error *ngIf="registerForm.controls.email.errors?.required">Email is required</mat-error>
-                    <mat-error *ngIf="registerForm.controls.email.hasError('invalidEmail')">Invalid email address</mat-error>
-                </mat-form-field>
-                <mat-form-field  appearance="outline" class="w-100 mt-1">
-                  <mat-icon matPrefix class="mr-1 text-muted">lock</mat-icon>
-                  <mat-label>Password</mat-label>
-                  <input matInput placeholder="Password" formControlName="password" type="password" minlength="6" required [type]="hide ? 'password' : 'text'">
-                  <mat-error *ngIf="registerForm.controls.password.errors?.required">Password is required</mat-error>
-                  <mat-error *ngIf="registerForm.controls.password.hasError('minlength')">Password isn't long enough, minimum of 6 characters</mat-error>
-                  <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
-                      <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                  </button>
-                </mat-form-field> 
-                <mat-form-field  appearance="outline" class="w-100 mt-1">
-                  <mat-icon matPrefix class="mr-1 text-muted">lock</mat-icon>
-                  <mat-label>Confirm Password</mat-label>
-                  <input matInput placeholder="Confirm Password" formControlName="confirmPassword" type="password" required [type]="hide ? 'password' : 'text'">
-                  <mat-error *ngIf="registerForm.controls.confirmPassword.errors?.required">Confirm Password is required</mat-error>
-                  <mat-error *ngIf="registerForm.controls.confirmPassword.hasError('mismatchedPasswords')">Passwords do not match</mat-error>
-                  <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
-                      <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                  </button>
-                </mat-form-field> 
-                <mat-slide-toggle formControlName="receiveNewsletter" class="my-2">Receive Newsletter</mat-slide-toggle>
-                <div class="text-center mt-2"> 
-                    <button mat-raised-button color="accent" class="uppercase" type="submit">
-                        Create an Account
-                    </button>
-                </div> 
-            </form>
-            <div class="divider mt-4"></div> 
-            <mat-card-actions fxLayoutAlign="center center" class="text-center">
-               <small class="my-3">By clicking the "Create an Account" button you agree with our <a mat-button routerLink="/terms-conditions" color="primary" class="mx-2">Terms and conditions</a> </small>
-            </mat-card-actions>
-          </mat-card>
-      </div> 
-  
+  <div class="theme-container">
+    <div fxLayout="row" fxLayoutAlign="center center" class="my-3">
+      <mat-card [style.max-width.px]="550">
+        <div fxLayout="column" fxLayoutAlign="center center" class="text-center">
+          <h1 class="uppercase">Registro</h1>
+          <a mat-button routerLink="/login" color="primary" class="w-100">¿Ya tienes una cuenta? ¡Inicia sesión!</a>
+        </div>
+        <form [formGroup]="registerForm" fxLayout="row wrap" (ngSubmit)="onRegisterFormSubmit(registerForm.value)">
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+              <mat-label>Tipo de documento</mat-label>
+              <mat-select placeholder="Seleccione tipo de documento" formControlName="docType">
+                <mat-option *ngFor="let type of docTypes" [value]="type.id">
+                  {{ type.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="registerForm.controls.docType.errors?.required">El tipo de documento es requerido.</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+              <mat-label>Numero de documento</mat-label>
+              <input matInput placeholder="Numero de documento" formControlName="docNumber" autocomplete="off" required />
+              <mat-error *ngIf="registerForm.controls.docNumber.errors?.required">El numero de identificación es requerido.</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+              <mat-label>Primer nombre</mat-label>
+              <input matInput placeholder="Primer nombre" formControlName="firstName" autocomplete="off" required />
+              <mat-error *ngIf="registerForm.controls.firstName.errors?.required">El primer nombre es requerido.</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+              <mat-label>Segundo nombre</mat-label>
+              <input matInput placeholder="Segundo nombre" formControlName="secondName" autocomplete="off" />
+              <!-- <mat-error *ngIf="registerForm.controls.firstName.errors?.required">El Primer nombre es requerido.</mat-error> -->
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+              <mat-label>Primer apellido</mat-label>
+              <input matInput placeholder="Primer apellido" formControlName="firstLastName" autocomplete="off" required />
+              <mat-error *ngIf="registerForm.controls.firstLastName.errors?.required">El primer apellido es requerido.</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+              <mat-label>Segundo apellido</mat-label>
+              <input matInput placeholder="Segundo apellido" formControlName="secondLastName" autocomplete="off" required />
+              <mat-error *ngIf="registerForm.controls.secondLastName.errors?.required">El segundo apellido es requerido.</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">email</mat-icon>
+              <mat-label>Email</mat-label>
+              <input matInput placeholder="Email" formControlName="email" autocomplete="off" required />
+              <mat-error *ngIf="registerForm.controls.email.errors?.required">El correo electrónico es obligatorio</mat-error>
+              <mat-error *ngIf="registerForm.controls.email.hasError('invalidEmail')">Dirección de correo electrónico no válida</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div [class.pb-2]="registerForm.controls.password.errors?.pattern" fxFlex="100" fxFlex.gt-xs="100" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">lock</mat-icon>
+              <mat-label>Contraseña</mat-label>
+              <input
+                matInput
+                placeholder="Password"
+                formControlName="password"
+                type="password"
+                minlength="6"
+                required
+                [type]="hide ? 'password' : 'text'"
+              />
+              <mat-error *ngIf="registerForm.controls.password.errors?.required">Se requiere una contraseña</mat-error>
+              <mat-error *ngIf="registerForm.controls.password.errors?.pattern"
+                >La contraseña no cumple con los requisitos minimos. Requisitos minimos: Minimo una letra en mayúscula, minúsculas, minimo un caracter
+                especial, números y un mínimo de 8 dígitos.</mat-error
+              >
+              <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
+                <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+          <!-- <div *ngIf="registerForm.controls.password.hasError('pattern')" fxFlex="100" fxFlex.gt-xs="100" class="px-2">
+            <mat-card>
+              <mat-card-content color="primary" class="p-2">
+                <h3>La contraseña debe contener como minimo las siguientes caracteristicas:</h3>
+                <ul class="p-3">
+                  <li>Minimo una letra en mayúsculas</li>
+                  <li>Minúsculas</li>
+                  <li>Minimo un caracter especial</li>
+                  <li>Números</li>
+                  <li>Mínimo de 8 dígitos.</li>
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          </div>-->
+          <div fxFlex="100" fxFlex.gt-xs="100" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">lock</mat-icon>
+              <mat-label>Confirmar contraseña</mat-label>
+              <input
+                matInput
+                placeholder="Confirm Password"
+                formControlName="confirmPassword"
+                type="password"
+                autocomplete="off"
+                required
+                [type]="hide ? 'password' : 'text'"
+              />
+              <mat-error *ngIf="registerForm.controls.confirmPassword.errors?.required">Es necesario confirmar la contraseña</mat-error>
+              <mat-error *ngIf="registerForm.controls.confirmPassword.hasError('mismatchedPasswords')"
+                >Las contraseñas no coincidenLas contraseñas no coinciden</mat-error
+              >
+              <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
+                <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+          <!-- <mat-slide-toggle formControlName="receiveNewsletter" class="my-2">Recibir el boletín de noticias</mat-slide-toggle> -->
+          <div class="text-center mt-2 w-100">
+            <button mat-raised-button color="primary" class="uppercase" type="submit">Crear una cuenta</button>
+          </div>
+        </form>
+        <div class="divider mt-4"></div>
+        <mat-card-actions fxLayoutAlign="center center" class="text-center">
+          <small class="my-3"
+            >Al hacer clic en el botón "Crear una cuenta", usted acepta nuestros
+            <a mat-button routerLink="/terms-conditions" color="primary" class="mx-2">términos y condiciones</a>
+          </small>
+        </mat-card-actions>
+      </mat-card>
     </div>
   </div>
+</div>

@@ -22,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
@@ -78,6 +78,9 @@ import { AlertDialogComponent } from './alert-dialog/alert-dialog.component';
 import { DialogHeaderControlsComponent } from './dialog-header-controls/dialog-header-controls.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { SpinnerComponent } from './spinner/spinner.component';
+import { CustomMatPaginatorIntl } from '../app.paginator';
+import { CurrencyMaskModule, CURRENCY_MASK_CONFIG } from 'ng2-currency-mask';
+import { CustomCurrencyMaskConfig } from '../common/utils/mask-configuration';
 
 @NgModule({
   imports: [
@@ -126,6 +129,7 @@ import { SpinnerComponent } from './spinner/spinner.component';
     AgmSnazzyInfoWindowModule,
     PipesModule,
     DirectivesModule,
+    CurrencyMaskModule,
   ],
   exports: [
     RouterModule,
@@ -195,6 +199,7 @@ import { SpinnerComponent } from './spinner/spinner.component';
     ConfirmDialogComponent,
     AlertDialogComponent,
     DialogHeaderControlsComponent,
+    CurrencyMaskModule,
   ],
   declarations: [
     LogoComponent,
@@ -221,6 +226,13 @@ import { SpinnerComponent } from './spinner/spinner.component';
     AlertDialogComponent,
     DialogHeaderControlsComponent,
   ],
-  providers: [{ provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG }],
+  providers: [
+    { provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG },
+    {
+      provide: MatPaginatorIntl,
+      useClass: CustomMatPaginatorIntl,
+    },
+    { provide: CURRENCY_MASK_CONFIG, useValue: CustomCurrencyMaskConfig },
+  ],
 })
 export class SharedModule {}

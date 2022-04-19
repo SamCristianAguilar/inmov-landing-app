@@ -4,7 +4,17 @@ import { MatStepper } from '@angular/material/stepper';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { AppService } from 'src/app/app.service';
 import { catchError, map, Observable, of, startWith, tap, throwError } from 'rxjs';
-import { City, ContractForRentRequest, Departament, InfoProperty, Location, Photos, PropertyRequest } from 'src/app/models/models';
+import {
+  City,
+  ContractForRentRequest,
+  Departament,
+  InfoProperty,
+  Location,
+  Neighborhood,
+  Photos,
+  PropertyRequest,
+  Zone,
+} from 'src/app/models/models';
 import { MatSelect } from '@angular/material/select';
 
 import { TYPE_CONTRACT, TYPE_STREET } from 'src/app/common/constants';
@@ -252,13 +262,30 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       stateProperty: value.infoProperty.stateProperty,
       features: value.infoProperty.features,
     };
+    const departament: Departament = {
+      id: value.location.departament.id,
+      name: value.location.departament.name,
+    };
+    const city: City = {
+      id: value.location.city.id,
+      name: value.location.city.name,
+      departament: departament,
+    };
+    const zone: Zone = {
+      name: value.location.zone,
+      city: city,
+    };
 
+    const neighborhood: Neighborhood = {
+      name: value.location.neighborhood,
+      zone: zone,
+    };
     const location: Location = {
-      zone: value.location.zone,
       zipCode: value.location.zipCode ? value.location.zipCode : null,
-      neighborhood: value.location.neighborhood,
+      neighborhood: neighborhood,
       address: value.location.address,
-      city: value.location.city,
+      lat: value.location.lat,
+      lng: value.location.lng,
     };
 
     let photos: Photos;
@@ -312,7 +339,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
                 closeButton: true,
                 disableTimeOut: true,
               });
-              this.reset();
+              this.horizontalStepper.reset();
               return of(null);
             }
           })
@@ -425,6 +452,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   public onMapClick(e: any) {
     this.lat = e.coords.lat;
     this.lng = e.coords.lng;
+    console.log(this.lat, this.lng);
     this.getAddress();
   }
   public onMarkerClick(e: any) {
@@ -432,11 +460,13 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   public setAddresses(result) {
+    console.log(result);
     this.submitForm.controls.location.get('city').setValue(null);
-
-    let cityName, departament, locality, neighborhood, zipCode;
+    let cityName, departament, locality, neighborhood, zipCode, lat, lng;
 
     const data = result.address_components;
+    lat = result.geometry.location.lat;
+    lng = result.geometry.location.lng;
 
     data.forEach((item) => {
       if (item.types.indexOf('administrative_area_level_1') > -1) {
@@ -480,8 +510,14 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     if (zipCode) {
       this.submitForm.controls.location.get('zipCode').setValue(zipCode);
     }
+    if (lat) {
+      this.submitForm.controls.location.get('lat').setValue(lat);
+    }
+    if (lng) {
+      this.submitForm.controls.location.get('lng').setValue(lng);
+    }
 
-    console.log(cityName, departament, locality, neighborhood, zipCode);
+    console.log(cityName, departament, locality, neighborhood, zipCode, lat, lng);
   }
 
   // mat autocomplete select cities
@@ -562,6 +598,8 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
         zipCode: [null, Validators.required],
         zone: [null, Validators.required],
         neighborhood: [null, Validators.required],
+        lat: [null, Validators.required],
+        lng: [null, Validators.required],
       }),
       media: this.fb.group({
         gallery: [null, [Validators.required, LenghtArrayFiles]],

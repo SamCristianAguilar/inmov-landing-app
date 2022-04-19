@@ -7,6 +7,8 @@ import { Subscription } from 'rxjs';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PropertyService } from 'src/app/services/property.service';
+import { FilterService } from 'src/app/services/filter.service';
+import { propertyResponse } from 'src/app/models/models';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +20,7 @@ export class HomeComponent implements OnInit {
   activeMediaQuery = '';
 
   public slides = [];
-  public properties: Property[];
+  public properties: propertyResponse[];
   public viewType: string = 'grid';
   public viewCol: number = 25;
   public count: number = 8;
@@ -34,6 +36,7 @@ export class HomeComponent implements OnInit {
   constructor(
     public appSettings: AppSettings,
     public appService: AppService,
+    public filterService: FilterService,
     public propertyService: PropertyService,
     public mediaObserver: MediaObserver
   ) {
@@ -91,12 +94,7 @@ export class HomeComponent implements OnInit {
   }
 
   public getProperties() {
-    this.propertyService.getProperties().subscribe((data) => {
-      console.log(data);
-    });
-    //console.log('get properties by : ', this.searchFields);
-
-    this.appService.getProperties().subscribe((data) => {
+    this.propertyService.getProperties('Activo').subscribe((data) => {
       if (this.properties && this.properties.length > 0) {
         this.settings.loadMore.page++;
         this.pagination.page = this.settings.loadMore.page;
@@ -105,7 +103,7 @@ export class HomeComponent implements OnInit {
       if (result.data.length == 0) {
         this.properties.length = 0;
         this.pagination = new Pagination(1, this.count, null, 2, 0, 0);
-        this.message = 'No Results Found';
+        this.message = 'No se han encontrado resultados';
         return false;
       }
       if (this.properties && this.properties.length > 0) {
@@ -142,7 +140,7 @@ export class HomeComponent implements OnInit {
   }
 
   public filterData(data) {
-    return this.appService.filterData(data, this.searchFields, this.sort, this.pagination.page, this.pagination.perPage);
+    return this.filterService.filterData(data, this.searchFields, this.sort, this.pagination.page, this.pagination.perPage);
   }
 
   public searchClicked() {

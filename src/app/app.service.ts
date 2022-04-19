@@ -11,7 +11,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogModel } from './shared/confirm-dialog/confirm-dialog.component';
 import { AlertDialogComponent } from './shared/alert-dialog/alert-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
-import { Departament, Feature, StateProperty, TypeProperty } from './models/models';
 
 export class Data {
   constructor(public properties: Property[], public compareList: Property[], public favorites: Property[], public locations: Location[]) {}
@@ -29,7 +28,6 @@ export class AppService {
   );
 
   public url = environment.url + '/assets/data/';
-  public urlBack = environment.urlBack;
   public apiKey = 'AIzaSyC8d-iDu3YQME51n2bWY7_3p1pzEWFnp6w';
 
   constructor(
@@ -80,35 +78,6 @@ export class AppService {
     });
   }
 
-  public addToCompare(property: Property, component, direction) {
-    if (!this.Data.compareList.filter((item) => item.id == property.id)[0]) {
-      this.Data.compareList.push(property);
-      this.bottomSheet
-        .open(component, {
-          direction: direction,
-        })
-        .afterDismissed()
-        .subscribe((isRedirect) => {
-          if (isRedirect) {
-            if (isPlatformBrowser(this.platformId)) {
-              window.scrollTo(0, 0);
-            }
-          }
-        });
-    }
-  }
-
-  public addToFavorites(property: Property, direction) {
-    if (!this.Data.favorites.filter((item) => item.id == property.id)[0]) {
-      this.Data.favorites.push(property);
-      this.snackBar.open('La propiedad "' + property.title + '" se ha añadido a los favoritos.', '×', {
-        verticalPosition: 'top',
-        duration: 3000,
-        direction: direction,
-      });
-    }
-  }
-
   public openConfirmDialog(title: string, message: string) {
     const dialogData = new ConfirmDialogModel(title, message);
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -132,6 +101,14 @@ export class AppService {
       value = res;
     });
     return value;
+  }
+
+  public getPropertyTypes() {
+    return [
+      { id: 1, name: 'Office' },
+      { id: 2, name: 'House' },
+      { id: 3, name: 'Apartment' },
+    ];
   }
 
   public getPropertyStatuses() {
@@ -200,302 +177,24 @@ export class AppService {
     ];
   }
 
+  public getFeatures() {
+    return [
+      { id: 1, name: 'Air Conditioning', selected: false },
+      { id: 2, name: 'Barbeque', selected: false },
+      { id: 3, name: 'Dryer', selected: false },
+      { id: 4, name: 'Microwave', selected: false },
+      { id: 5, name: 'Refrigerator', selected: false },
+      { id: 6, name: 'TV Cable', selected: false },
+      { id: 7, name: 'Sauna', selected: false },
+      { id: 8, name: 'WiFi', selected: false },
+      { id: 9, name: 'Fireplace', selected: false },
+      { id: 10, name: 'Swimming Pool', selected: false },
+      { id: 11, name: 'Gym', selected: false },
+    ];
+  }
+
   public getHomeCarouselSlides() {
     return this.http.get<any[]>(this.url + 'slides.json');
-  }
-
-  public filterData(data, params: any, sort?, page?, perPage?) {
-    if (params) {
-      if (params.propertyType) {
-        data = data.filter((property) => property.propertyType == params.propertyType.name);
-      }
-
-      if (params.propertyStatus && params.propertyStatus.length) {
-        let statuses = [];
-        params.propertyStatus.forEach((status) => {
-          statuses.push(status.name);
-        });
-        let properties = [];
-        data.filter((property) =>
-          property.propertyStatus.forEach((status) => {
-            if (statuses.indexOf(status) > -1) {
-              if (!properties.includes(property)) {
-                properties.push(property);
-              }
-            }
-          })
-        );
-        data = properties;
-      }
-
-      if (params.price) {
-        if (this.appSettings.settings.currency == 'USD') {
-          if (params.price.from) {
-            data = data.filter((property) => {
-              if (property.priceDollar.sale && property.priceDollar.sale >= params.price.from) {
-                return true;
-              }
-              if (property.priceDollar.rent && property.priceDollar.rent >= params.price.from) {
-                return true;
-              }
-              return false;
-            });
-          }
-          if (params.price.to) {
-            data = data.filter((property) => {
-              if (property.priceDollar.sale && property.priceDollar.sale <= params.price.to) {
-                return true;
-              }
-              if (property.priceDollar.rent && property.priceDollar.rent <= params.price.to) {
-                return true;
-              }
-              return false;
-            });
-          }
-        }
-        if (this.appSettings.settings.currency == 'EUR') {
-          if (params.price.from) {
-            data = data.filter((property) => {
-              if (property.priceEuro.sale && property.priceEuro.sale >= params.price.from) {
-                return true;
-              }
-              if (property.priceEuro.rent && property.priceEuro.rent >= params.price.from) {
-                return true;
-              }
-              return false;
-            });
-          }
-          if (params.price.to) {
-            data = data.filter((property) => {
-              if (property.priceEuro.sale && property.priceEuro.sale <= params.price.to) {
-                return true;
-              }
-              if (property.priceEuro.rent && property.priceEuro.rent <= params.price.to) {
-                return true;
-              }
-              return false;
-            });
-          }
-        }
-      }
-
-      if (params.city) {
-        data = data.filter((property) => property.city == params.city.name);
-      }
-
-      if (params.zipCode) {
-        data = data.filter((property) => property.zipCode == params.zipCode);
-      }
-
-      if (params.neighborhood && params.neighborhood.length) {
-        let neighborhoods = [];
-        params.neighborhood.forEach((item) => {
-          neighborhoods.push(item.name);
-        });
-        let properties = [];
-        data.filter((property) =>
-          property.neighborhood.forEach((item) => {
-            if (neighborhoods.indexOf(item) > -1) {
-              if (!properties.includes(property)) {
-                properties.push(property);
-              }
-            }
-          })
-        );
-        data = properties;
-      }
-
-      if (params.street && params.street.length) {
-        let streets = [];
-        params.street.forEach((item) => {
-          streets.push(item.name);
-        });
-        let properties = [];
-        data.filter((property) =>
-          property.street.forEach((item) => {
-            if (streets.indexOf(item) > -1) {
-              if (!properties.includes(property)) {
-                properties.push(property);
-              }
-            }
-          })
-        );
-        data = properties;
-      }
-
-      if (params.bedrooms) {
-        if (params.bedrooms.from) {
-          data = data.filter((property) => property.bedrooms >= params.bedrooms.from);
-        }
-        if (params.bedrooms.to) {
-          data = data.filter((property) => property.bedrooms <= params.bedrooms.to);
-        }
-      }
-
-      if (params.bathrooms) {
-        if (params.bathrooms.from) {
-          data = data.filter((property) => property.bathrooms >= params.bathrooms.from);
-        }
-        if (params.bathrooms.to) {
-          data = data.filter((property) => property.bathrooms <= params.bathrooms.to);
-        }
-      }
-
-      if (params.garages) {
-        if (params.garages.from) {
-          data = data.filter((property) => property.garages >= params.garages.from);
-        }
-        if (params.garages.to) {
-          data = data.filter((property) => property.garages <= params.garages.to);
-        }
-      }
-
-      if (params.area) {
-        if (params.area.from) {
-          data = data.filter((property) => property.area.value >= params.area.from);
-        }
-        if (params.area.to) {
-          data = data.filter((property) => property.area.value <= params.area.to);
-        }
-      }
-
-      if (params.yearBuilt) {
-        if (params.yearBuilt.from) {
-          data = data.filter((property) => property.yearBuilt >= params.yearBuilt.from);
-        }
-        if (params.yearBuilt.to) {
-          data = data.filter((property) => property.yearBuilt <= params.yearBuilt.to);
-        }
-      }
-
-      if (params.features) {
-        let arr = [];
-        params.features.forEach((feature) => {
-          if (feature.selected) arr.push(feature.name);
-        });
-        if (arr.length > 0) {
-          let properties = [];
-          data.filter((property) =>
-            property.features.forEach((feature) => {
-              if (arr.indexOf(feature) > -1) {
-                if (!properties.includes(property)) {
-                  properties.push(property);
-                }
-              }
-            })
-          );
-          data = properties;
-        }
-      }
-    }
-
-    // console.log(data)
-
-    //for show more properties mock data
-    for (var index = 0; index < 2; index++) {
-      data = data.concat(data);
-    }
-
-    this.sortData(sort, data);
-    return this.paginator(data, page, perPage);
-  }
-
-  public sortData(sort, data) {
-    if (sort) {
-      switch (sort) {
-        case 'Newest':
-          data = data.sort((a, b) => {
-            return <any>new Date(b.published) - <any>new Date(a.published);
-          });
-          break;
-        case 'Oldest':
-          data = data.sort((a, b) => {
-            return <any>new Date(a.published) - <any>new Date(b.published);
-          });
-          break;
-        case 'Popular':
-          data = data.sort((a, b) => {
-            if (a.ratingsValue / a.ratingsCount < b.ratingsValue / b.ratingsCount) {
-              return 1;
-            }
-            if (a.ratingsValue / a.ratingsCount > b.ratingsValue / b.ratingsCount) {
-              return -1;
-            }
-            return 0;
-          });
-          break;
-        case 'Price (Low to High)':
-          if (this.appSettings.settings.currency == 'USD') {
-            data = data.sort((a, b) => {
-              if ((a.priceDollar.sale || a.priceDollar.rent) > (b.priceDollar.sale || b.priceDollar.rent)) {
-                return 1;
-              }
-              if ((a.priceDollar.sale || a.priceDollar.rent) < (b.priceDollar.sale || b.priceDollar.rent)) {
-                return -1;
-              }
-              return 0;
-            });
-          }
-          if (this.appSettings.settings.currency == 'EUR') {
-            data = data.sort((a, b) => {
-              if ((a.priceEuro.sale || a.priceEuro.rent) > (b.priceEuro.sale || b.v.rent)) {
-                return 1;
-              }
-              if ((a.priceEuro.sale || a.priceEuro.rent) < (b.priceEuro.sale || b.priceEuro.rent)) {
-                return -1;
-              }
-              return 0;
-            });
-          }
-          break;
-        case 'Price (High to Low)':
-          if (this.appSettings.settings.currency == 'USD') {
-            data = data.sort((a, b) => {
-              if ((a.priceDollar.sale || a.priceDollar.rent) < (b.priceDollar.sale || b.priceDollar.rent)) {
-                return 1;
-              }
-              if ((a.priceDollar.sale || a.priceDollar.rent) > (b.priceDollar.sale || b.priceDollar.rent)) {
-                return -1;
-              }
-              return 0;
-            });
-          }
-          if (this.appSettings.settings.currency == 'EUR') {
-            data = data.sort((a, b) => {
-              if ((a.priceEuro.sale || a.priceEuro.rent) < (b.priceEuro.sale || b.v.rent)) {
-                return 1;
-              }
-              if ((a.priceEuro.sale || a.priceEuro.rent) > (b.priceEuro.sale || b.priceEuro.rent)) {
-                return -1;
-              }
-              return 0;
-            });
-          }
-          break;
-        default:
-          break;
-      }
-    }
-    return data;
-  }
-
-  public paginator(items, page?, perPage?) {
-    var page = page || 1,
-      perPage = perPage || 4,
-      offset = (page - 1) * perPage,
-      paginatedItems = items.slice(offset).slice(0, perPage),
-      totalPages = Math.ceil(items.length / perPage);
-    return {
-      data: paginatedItems,
-      pagination: {
-        page: page,
-        perPage: perPage,
-        prePage: page - 1 ? page - 1 : null,
-        nextPage: totalPages > page ? page + 1 : null,
-        total: items.length,
-        totalPages: totalPages,
-      },
-    };
   }
 
   public getTestimonials() {

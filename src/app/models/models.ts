@@ -1,5 +1,5 @@
 export class TypeProperty {
-  public id: number;
+  public id?: number;
   public name: string;
 }
 
@@ -21,11 +21,12 @@ export class StateProperty {
 export class City {
   public id: number;
   public name: string;
+  public departament?: Departament;
 }
 export class Departament {
-  public id: number;
   public name: string;
-  public citys: City[];
+  public id?: number;
+  public citys?: City[];
 }
 
 export class ContractForRentRequest {
@@ -63,14 +64,26 @@ export class InfoProperty {
 }
 
 export class Location {
-  public zone: string;
   public zipCode: string;
-  public neighborhood: string;
+  public neighborhood: Neighborhood;
   public address: string;
-  public city: City;
+  public formatedAddress?: string;
+  public lat: number;
+  public lng: number;
   public id?: number;
 }
 
+export class Neighborhood {
+  public name: string;
+  public zone: Zone;
+  public id?: number;
+}
+
+export class Zone {
+  public name: string;
+  public city: City;
+  public id?: number;
+}
 export class Photos {
   public paths: string[];
 }
@@ -118,12 +131,27 @@ export class propertyResponse {
   public premium: boolean;
   public createAt: Date;
   public updateAt: Date;
+  public type: TypeProperty;
   public owner: Owner;
   public location: Location;
   public infoProperty: InfoProperty;
   public photos: PhotosResponse[];
   public forRentContracts: forRentContractsRes[];
   public forSaleContracts: forSaleContractsRes[];
+  public priceCurrent: string;
+  public formatedAddress: string;
+}
+
+export class FilterContractReponse {
+  public type: string;
+  public contract: forRentContractsRes | forSaleContractsRes;
+}
+
+//User Models
+
+export class DocType {
+  public name: string;
+  public id?: number;
 }
 
 // id, title, premium, createAt, updateAt, location, infoProperty, photos, forRentContracts, forSaleContracts,

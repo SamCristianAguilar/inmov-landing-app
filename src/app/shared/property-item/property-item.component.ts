@@ -1,10 +1,12 @@
 import { Component, OnInit, Input, ViewChild, SimpleChange } from '@angular/core';
 import { SwiperDirective, SwiperConfigInterface, SwiperPaginationInterface } from 'ngx-swiper-wrapper';
-import { Property } from '../../app.models';
 import { Settings, AppSettings } from '../../app.settings';
 
 import { AppService } from '../../app.service';
 import { CompareOverviewComponent } from '../compare-overview/compare-overview.component';
+import { propertyResponse } from 'src/app/models/models';
+import { environment } from 'src/environments/environment';
+import { PropertyService } from 'src/app/services/property.service';
 
 @Component({
   selector: 'app-property-item',
@@ -12,7 +14,7 @@ import { CompareOverviewComponent } from '../compare-overview/compare-overview.c
   styleUrls: ['./property-item.component.scss'],
 })
 export class PropertyItemComponent implements OnInit {
-  @Input() property: Property;
+  @Input() property: propertyResponse;
   @Input() viewType: string = 'grid';
   @Input() viewColChanged: boolean = false;
   @Input() fullWidthPage: boolean = true;
@@ -25,7 +27,8 @@ export class PropertyItemComponent implements OnInit {
     clickable: true,
   };
   public settings: Settings;
-  constructor(public appSettings: AppSettings, public appService: AppService) {
+  private urlBack = environment.urlBack;
+  constructor(public appSettings: AppSettings, public appService: AppService, public propService: PropertyService) {
     this.settings = this.appSettings.settings;
   }
 
@@ -43,7 +46,7 @@ export class PropertyItemComponent implements OnInit {
     if (changes.viewColChanged) {
       this.getColumnCount(changes.viewColChanged.currentValue);
       if (!changes.viewColChanged.isFirstChange()) {
-        if (this.property.gallery.length > 1) {
+        if (this.property.photos.length > 1) {
           this.directiveRef.update();
         }
       }
@@ -52,7 +55,7 @@ export class PropertyItemComponent implements OnInit {
     for (let propName in changes) {
       let changedProp = changes[propName];
       if (!changedProp.isFirstChange()) {
-        if (this.property.gallery.length > 1) {
+        if (this.property.photos.length > 1) {
           this.initCarousel();
           this.config.autoHeight = true;
           this.directiveRef.update();
@@ -75,9 +78,9 @@ export class PropertyItemComponent implements OnInit {
 
   public getStatusBgColor(status) {
     switch (status) {
-      case 'For Sale':
+      case 'Para Venta':
         return '#558B2F';
-      case 'For Rent':
+      case 'Para Renta':
         return '#1E88E5';
       case 'Open House':
         return '#009688';
@@ -114,18 +117,18 @@ export class PropertyItemComponent implements OnInit {
   }
 
   public addToCompare() {
-    this.appService.addToCompare(this.property, CompareOverviewComponent, this.settings.rtl ? 'rtl' : 'ltr');
+    this.propService.addToCompare(this.property, CompareOverviewComponent, this.settings.rtl ? 'rtl' : 'ltr');
   }
 
   public onCompare() {
-    return this.appService.Data.compareList.filter((item) => item.id == this.property.id)[0];
+    return this.propService.Data.compareList.filter((item) => item.id == this.property.id)[0];
   }
 
   public addToFavorites() {
-    this.appService.addToFavorites(this.property, this.settings.rtl ? 'rtl' : 'ltr');
+    this.propService.addToFavorites(this.property, this.settings.rtl ? 'rtl' : 'ltr');
   }
 
   public onFavorites() {
-    return this.appService.Data.favorites.filter((item) => item.id == this.property.id)[0];
+    return this.propService.Data.favorites.filter((item) => item.id == this.property.id)[0];
   }
 }

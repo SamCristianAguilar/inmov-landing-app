@@ -1,6 +1,14 @@
-{   
-  "LOGIN": "Login", 
-  "LOGOUT": "Logout", 
+{
+  "PAGINATOR": {
+    "FIRST_PAGE": "Primera página",
+    "ITEMS_PER_PAGE": "Items por página",
+    "LAST_PAGE": "Ultima página",
+    "NEXT_PAGE": "Siguiente",
+    "PREVIOUS_PAGE": "Anterior",
+    "OF": "de"
+  },
+  "LOGIN": "Login",
+  "LOGOUT": "Logout",
   "REGISTER": "Registrarse",
   "ACCOUNT": "Mi Cuenta",
   "SUBMIT_PROPERTY": "Registrar propiedad",
@@ -11,16 +19,16 @@
   "EDIT_PROFILE": "Editar perfil",
   "LOCK_SCREEN": "Bloquear pantalla",
   "HELP": "Ayuda",
-  "NAV": {  
-    "HOME": "Inicio", 
-    "PROPERTIES": "Propiedades", 
-    "PAGES": "Paginas", 
+  "NAV": {
+    "HOME": "Inicio",
+    "PROPERTIES": "Propiedades",
+    "PAGES": "Paginas",
     "AGENTS": "Agentes",
-    "AGENT": "Agente", 
+    "AGENT": "Agente",
     "FAQS": "PQRS",
     "PRICING": "Precios",
     "TERMS_CONDITIONS": "Términos y condiciones",
-    "LANDING": "Landing", 
+    "LANDING": "Landing",
     "404_PAGE": "Pagina 404",
     "OTHERS": "Otras",
     "EXTERNAL_LINK": "Enlace externo",
@@ -28,7 +36,7 @@
     "CONTACT": "Contacto",
     "ABOUT_US": "Sobre nosotros",
     "ADMIN": "Administrador"
-  }, 
+  },
   "BTN": {
     "ADD": "Añadir",
     "SAVE": "Guardar",
@@ -47,7 +55,7 @@
     "SURE_DELETE": "¿Estás seguro de que quieres eliminar?",
     "FILE_SIZE": "El tamaño del archivo no puede exceder {{param}} kb."
   },
-  "FIELD": { 
-    "NAME": "Nombre" 
+  "FIELD": {
+    "NAME": "Nombre"
   }
 }
