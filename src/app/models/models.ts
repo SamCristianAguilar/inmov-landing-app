@@ -68,6 +68,7 @@ export class Location {
   public neighborhood: Neighborhood;
   public address: string;
   public formatedAddress?: string;
+  public details?: string;
   public lat: number;
   public lng: number;
   public id?: number;
@@ -93,19 +94,6 @@ export class PhotosResponse {
   public pathName: string;
 }
 
-export class userResponse {
-  public id: number;
-  public docNumber: string;
-  public name: string;
-  public secondName: string;
-  public firstLastName: string;
-  public secondLastName: string;
-  public createAt: Date;
-  public updateAt: Date;
-}
-export class Owner extends userResponse {}
-export class Holder extends userResponse {}
-
 export class StateContract {
   public name: string;
   public id?: number;
@@ -118,14 +106,14 @@ export class ContractRes {
   public createAt: Date;
   public id: number;
 }
-export class forRentContractsRes extends ContractRes {
+export class ForRentContractsRes extends ContractRes {
   public contractValue: string;
 }
-export class forSaleContractsRes extends ContractRes {
+export class ForSaleContractsRes extends ContractRes {
   public contractValue: string;
 }
 
-export class propertyResponse {
+export class PropertyResponse {
   public id: number;
   public title: string;
   public premium: boolean;
@@ -136,22 +124,70 @@ export class propertyResponse {
   public location: Location;
   public infoProperty: InfoProperty;
   public photos: PhotosResponse[];
-  public forRentContracts: forRentContractsRes[];
-  public forSaleContracts: forSaleContractsRes[];
+  public forRentContracts: ForRentContractsRes[];
+  public forSaleContracts: ForSaleContractsRes[];
   public priceCurrent: string;
   public formatedAddress: string;
 }
 
 export class FilterContractReponse {
   public type: string;
-  public contract: forRentContractsRes | forSaleContractsRes;
+  public contract: ForRentContractsRes | ForSaleContractsRes;
 }
 
 //User Models
+export class UserDataLogin {
+  username: string;
+  password: string;
+}
 
+export class UserToken {
+  message: string;
+  token: string;
+}
 export class DocType {
   public name: string;
   public id?: number;
 }
 
+export class Role {
+  public id?: number;
+  public role: string;
+}
+
+export enum UserRole {
+  Admin = 'Administrador',
+  Cliente = 'Cliente',
+  Avaluos = 'Avaluos',
+  Master = 'Master',
+}
+
+export class AccessDataReq {
+  public id?: number;
+  public email: string;
+  public password: string;
+  public role: string | number | Role;
+}
+
+export class InfoUserReq {
+  public cellPhone: string;
+  public landLinePhone?: string;
+  public email: string;
+  public id?: number;
+}
+export class User {
+  public id?: number;
+  public firstName: string;
+  public secondName?: string;
+  public firstLastName: string;
+  public secondLastName?: string;
+  public docType: number | DocType;
+  public docNumber: string;
+  public accessData?: AccessDataReq;
+  public infoUser?: InfoUserReq;
+  public location?: Location;
+}
+
+export class Owner extends User {}
+export class Holder extends User {}
 // id, title, premium, createAt, updateAt, location, infoProperty, photos, forRentContracts, forSaleContracts,

@@ -47,10 +47,10 @@
           <div>
             <h3 class="primary-color price">
               <span *ngIf="property.forSaleContracts?.length > 0">{{
-                property.forSaleContracts[0].contractValue | currency: 'COL':'symbol':'1.0'
+                property.forSaleContracts[0].contractValue | currency: 'COP':'symbol':'1.0'
               }}</span>
               <span *ngIf="property.forRentContracts?.length > 0"
-                >{{ property.forRentContracts[0].contractValue | currency: 'COL':'symbol':'1.0' }} /Mensual</span
+                >{{ property.forRentContracts[0].contractValue | currency: 'COP':'symbol':'1.0' }} /Mensual</span
               >
             </h3>
           </div>

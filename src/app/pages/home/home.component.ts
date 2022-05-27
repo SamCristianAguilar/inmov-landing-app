@@ -8,7 +8,7 @@ import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PropertyService } from 'src/app/services/property.service';
 import { FilterService } from 'src/app/services/filter.service';
-import { propertyResponse } from 'src/app/models/models';
+import { PropertyResponse } from 'src/app/models/models';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
   activeMediaQuery = '';
 
   public slides = [];
-  public properties: propertyResponse[];
+  public properties: PropertyResponse[];
   public viewType: string = 'grid';
   public viewCol: number = 25;
   public count: number = 8;
@@ -64,9 +64,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.getSlides();
-    this.getLocations();
     this.getProperties();
-    this.getFeaturedProperties();
   }
 
   ngDoCheck() {
@@ -84,12 +82,6 @@ export class HomeComponent implements OnInit {
   public getSlides() {
     this.appService.getHomeCarouselSlides().subscribe((res) => {
       this.slides = res;
-    });
-  }
-
-  public getLocations() {
-    this.appService.getLocations().subscribe((res) => {
-      this.locations = res;
     });
   }
 
@@ -119,15 +111,6 @@ export class HomeComponent implements OnInit {
         this.settings.loadMore.result = this.properties.length;
       } else {
         this.settings.loadMore.complete = false;
-      }
-
-      if (this.settings.header == 'map') {
-        this.locations.length = 0;
-        this.properties.forEach((p) => {
-          let loc = new Location(p.id, p.location.lat, p.location.lng);
-          this.locations.push(loc);
-        });
-        this.locations = [...this.locations];
       }
     });
   }
@@ -184,11 +167,5 @@ export class HomeComponent implements OnInit {
   public changeViewType(obj) {
     this.viewType = obj.viewType;
     this.viewCol = obj.viewCol;
-  }
-
-  public getFeaturedProperties() {
-    this.appService.getFeaturedProperties().subscribe((properties) => {
-      this.featuredProperties = properties;
-    });
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FilterContractReponse, forRentContractsRes, forSaleContractsRes, propertyResponse } from '../models/models';
+import { FilterContractReponse, ForRentContractsRes, ForSaleContractsRes, PropertyResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +7,7 @@ import { FilterContractReponse, forRentContractsRes, forSaleContractsRes, proper
 export class FilterService {
   constructor() {}
 
-  public filterContract(property: propertyResponse): FilterContractReponse {
+  public filterContract(property: PropertyResponse): FilterContractReponse {
     let contract: FilterContractReponse;
     if (property.forRentContracts.length > 0) {
       contract = new FilterContractReponse();

@@ -20,15 +20,7 @@ export class ContractService {
     return this.http.post(`${this.urlBack}/contract/for-sale/`, contract);
   }
 
-  private handlerError(err: HttpErrorResponse): Observable<never> {
-    console.log(err);
-    const serverErrorMessage = err.message;
-
-    if (serverErrorMessage) {
-      this.toastr.error('Error al completar la función', err.message ? err.message : 'Error subtitle', {
-        progressBar: true,
-      });
-    }
-    return throwError(() => new Error(serverErrorMessage));
+  public getAllByHolder(id: number): Observable<any> {
+    return this.http.get(`${this.urlBack}/contract/by-holder/${id}`);
   }
 }

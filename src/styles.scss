@@ -29,3 +29,12 @@
 .al-c {
   justify-content: center;
 }
+
+.text-cap {
+  text-transform: capitalize;
+}
+
+#toast-container > .toast-success {
+  background-color: rgb(0, 196, 0);
+  box-shadow: none;
+}

@@ -60,6 +60,22 @@
               <mat-error *ngIf="registerForm.controls.secondLastName.errors?.required">El segundo apellido es requerido.</mat-error>
             </mat-form-field>
           </div>
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">phone</mat-icon>
+              <mat-label>Telefono Celular</mat-label>
+              <input matInput placeholder="Celular" formControlName="cellPhone" autocomplete="off" required />
+              <mat-error *ngIf="registerForm.controls.cellPhone.errors?.required">El numero celular es un campo requerido.</mat-error>
+              <mat-error *ngIf="registerForm.controls.cellPhone.errors?.pattern">Ingrese un numero de celular valido.</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 mt-1">
+              <mat-icon matPrefix class="mr-1 text-muted">phone</mat-icon>
+              <mat-label>Telefono Fijo</mat-label>
+              <input matInput placeholder="Fijo" formControlName="landLinePhone" autocomplete="off" />
+            </mat-form-field>
+          </div>
           <div fxFlex="100" class="px-2">
             <mat-form-field appearance="outline" class="w-100 mt-1">
               <mat-icon matPrefix class="mr-1 text-muted">email</mat-icon>
@@ -93,20 +109,7 @@
               </button>
             </mat-form-field>
           </div>
-          <!-- <div *ngIf="registerForm.controls.password.hasError('pattern')" fxFlex="100" fxFlex.gt-xs="100" class="px-2">
-            <mat-card>
-              <mat-card-content color="primary" class="p-2">
-                <h3>La contraseña debe contener como minimo las siguientes caracteristicas:</h3>
-                <ul class="p-3">
-                  <li>Minimo una letra en mayúsculas</li>
-                  <li>Minúsculas</li>
-                  <li>Minimo un caracter especial</li>
-                  <li>Números</li>
-                  <li>Mínimo de 8 dígitos.</li>
-                </ul>
-              </mat-card-content>
-            </mat-card>
-          </div>-->
+
           <div fxFlex="100" fxFlex.gt-xs="100" class="px-2">
             <mat-form-field appearance="outline" class="w-100 mt-1">
               <mat-icon matPrefix class="mr-1 text-muted">lock</mat-icon>

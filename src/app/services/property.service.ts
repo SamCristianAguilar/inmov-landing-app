@@ -7,13 +7,13 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Property } from '../app.models';
-import { Departament, Feature, Neighborhood, Photos, PropertyRequest, propertyResponse, StateProperty, TypeProperty, Zone } from '../models/models';
+import { Departament, Feature, Neighborhood, Photos, PropertyRequest, PropertyResponse, StateProperty, TypeProperty, Zone } from '../models/models';
 
 export class Data {
   constructor(
-    public properties: propertyResponse[],
-    public compareList: propertyResponse[],
-    public favorites: propertyResponse[],
+    public properties: PropertyResponse[],
+    public compareList: PropertyResponse[],
+    public favorites: PropertyResponse[],
     public locations: Location[]
   ) {}
 }
@@ -41,12 +41,16 @@ export class PropertyService {
   public uploadImages(gallery: {}): Observable<any> {
     return this.http.post<any>(`${this.urlBack}/photos/`, gallery);
   }
-  public getProperties(state?: string): Observable<propertyResponse[]> {
-    return this.http.get<propertyResponse[]>(`${this.urlBack}/property${state ? '?state=' + state : ''}`);
+  public getProperties(state?: string): Observable<PropertyResponse[]> {
+    return this.http.get<PropertyResponse[]>(`${this.urlBack}/property${state ? '?state=' + state : ''}`);
   }
 
-  public getpropertyById(id: number): Observable<propertyResponse> {
-    return this.http.get<propertyResponse>(`${this.urlBack}/property/${id}`);
+  public getPropertiesByOwner(id: number): Observable<PropertyResponse[]> {
+    return this.http.get<PropertyResponse[]>(`${this.urlBack}/property/owner/${id}`);
+  }
+
+  public getpropertyById(id: number): Observable<PropertyResponse> {
+    return this.http.get<PropertyResponse>(`${this.urlBack}/property/${id}`);
   }
   public getPropertyTypes(): Observable<TypeProperty[]> {
     return this.http.get<TypeProperty[]>(`${this.urlBack}/type-property`);
@@ -67,11 +71,8 @@ export class PropertyService {
   public getStateProperty() {
     return this.http.get<StateProperty[]>(this.urlBack + '/state-property');
   }
-  public getAllDepartaments() {
-    return this.http.get<Departament[]>(this.urlBack + '/departament');
-  }
 
-  public addToCompare(property: propertyResponse, component, direction) {
+  public addToCompare(property: PropertyResponse, component, direction) {
     if (!this.Data.compareList.filter((item) => item.id == property.id)[0]) {
       this.Data.compareList.push(property);
       this.bottomSheet
@@ -89,7 +90,7 @@ export class PropertyService {
     }
   }
 
-  public addToFavorites(property: propertyResponse, direction) {
+  public addToFavorites(property: PropertyResponse, direction) {
     if (!this.Data.favorites.filter((item) => item.id == property.id)[0]) {
       this.Data.favorites.push(property);
       this.snackBar.open('The property "' + property.title + '" has been added to favorites.', '×', {

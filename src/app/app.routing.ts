@@ -4,6 +4,8 @@ import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 import { PagesComponent } from './pages/pages.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
+import { CheckUnLogedGuard } from './theme/guards/check-unloged.guard';
+import { CheckLogedGuard } from './theme/guards/check-loged.guard';
 
 export const routes: Routes = [
   {
@@ -19,13 +21,21 @@ export const routes: Routes = [
       { path: 'compare', loadChildren: () => import('./pages/compare/compare.module').then((m) => m.CompareModule) },
       { path: 'pricing', loadChildren: () => import('./pages/pricing/pricing.module').then((m) => m.PricingModule) },
       { path: 'faq', loadChildren: () => import('./pages/faq/faq.module').then((m) => m.FaqModule) },
-      { path: 'login', loadChildren: () => import('./pages/login/login.module').then((m) => m.LoginModule) },
-      { path: 'register', loadChildren: () => import('./pages/register/register.module').then((m) => m.RegisterModule) },
+      { path: 'login', loadChildren: () => import('./pages/login/login.module').then((m) => m.LoginModule), canActivate: [CheckLogedGuard] },
+      {
+        path: 'register',
+        loadChildren: () => import('./pages/register/register.module').then((m) => m.RegisterModule),
+        canActivate: [CheckLogedGuard],
+      },
       {
         path: 'terms-conditions',
         loadChildren: () => import('./pages/terms-conditions/terms-conditions.module').then((m) => m.TermsConditionsModule),
       },
-      { path: 'account', loadChildren: () => import('./pages/account/account.module').then((m) => m.AccountModule) },
+      {
+        path: 'account',
+        loadChildren: () => import('./pages/account/account.module').then((m) => m.AccountModule),
+        canActivate: [CheckUnLogedGuard],
+      },
       { path: 'submit-property', loadChildren: () => import('./pages/submit-property/submit-property.module').then((m) => m.SubmitPropertyModule) },
     ],
   },

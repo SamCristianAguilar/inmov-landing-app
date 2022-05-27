@@ -1,84 +1,151 @@
 <div fxLayout="row wrap">
-    <div fxFlex="100" fxFlex.gt-sm="50" class="p-3">
-        <h2 class="text-muted text-center fw-600 mb-3">Account details</h2>
-        <form [formGroup]="infoForm" (ngSubmit)="onInfoFormSubmit(infoForm.value)"> 
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Name</mat-label>
-                <input matInput placeholder="Name" formControlName="name" required autocomplete="off">
-                <mat-error *ngIf="infoForm.controls.name.errors?.required">Name is required</mat-error>
-                <mat-error *ngIf="infoForm.controls.name.hasError('minlength')">Name isn't long enough, minimum of 3 characters</mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Email</mat-label>
-                <input matInput placeholder="Email" formControlName="email" required autocomplete="off">
-                <mat-error *ngIf="infoForm.controls.email.errors?.required">Email is required</mat-error>
-                <mat-error *ngIf="infoForm.controls.email.hasError('invalidEmail')">Invalid email address</mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Phone</mat-label>
-                <input matInput placeholder="Phone" formControlName="phone" required onlyNumber autocomplete="off">
-                <mat-error *ngIf="infoForm.controls.phone.errors?.required">Phone is required</mat-error>
-            </mat-form-field>
+  <div fxFlex="100" fxFlex.gt-sm="70" class="p-3">
+    <h2 class="text-muted text-center fw-600 mb-3">Detalles de la cuenta</h2>
+    <form [formGroup]="infoForm" (ngSubmit)="onInfoFormSubmit(infoForm.value)">
+      <div fxLayout="row wrap">
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+            <mat-label>Tipo de documento</mat-label>
+            <mat-select placeholder="Seleccione tipo de documento" formControlName="docType">
+              <mat-option *ngFor="let type of docTypes" [value]="type.id">
+                {{ type.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="infoForm.controls.docType.errors?.required">El tipo de documento es requerido.</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+            <mat-label>Numero de documento</mat-label>
+            <input matInput placeholder="Numero de documento" formControlName="docNumber" autocomplete="off" required />
+            <mat-error *ngIf="infoForm.controls.docNumber.errors?.required">El numero de identificación es requerido.</mat-error>
+          </mat-form-field>
+        </div>
 
-            <div class="mb-3">
-                <input-file placeholder="Image (or link to image)" formControlName="image" fileLimit="1" fileAccept="image/*" [linkEnabled]="true"></input-file>  
-            </div>
-    
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Organization</mat-label>
-                <input matInput placeholder="organization" formControlName="organization" autocomplete="off"> 
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Facebook</mat-label>
-                <input matInput placeholder="facebook" formControlName="facebook" autocomplete="off"> 
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Twitter</mat-label>
-                <input matInput placeholder="twitter" formControlName="twitter" autocomplete="off"> 
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Linkedin</mat-label>
-                <input matInput placeholder="linkedin" formControlName="linkedin" autocomplete="off"> 
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Instagram</mat-label>
-                <input matInput placeholder="instagram" formControlName="instagram" autocomplete="off"> 
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Website</mat-label>
-                <input matInput placeholder="website" formControlName="website" autocomplete="off"> 
-            </mat-form-field>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+            <mat-label>Primer nombre</mat-label>
+            <input class="text-cap" matInput placeholder="Primer nombre" formControlName="firstName" autocomplete="off" required />
+            <mat-error *ngIf="infoForm.controls.firstName.errors?.required">El primer nombre es requerido.</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+            <mat-label>Segundo nombre</mat-label>
+            <input class="text-cap" matInput placeholder="Segundo nombre" formControlName="secondName" autocomplete="off" />
+            <!-- <mat-error *ngIf="infoForm.controls.firstName.errors?.required">El Primer nombre es requerido.</mat-error> -->
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+            <mat-label>Primer apellido</mat-label>
+            <input class="text-cap" matInput placeholder="Primer apellido" formControlName="firstLastName" autocomplete="off" required />
+            <mat-error *ngIf="infoForm.controls.firstLastName.errors?.required">El primer apellido es requerido.</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">badge</mat-icon>
+            <mat-label>Segundo apellido</mat-label>
+            <input class="text-cap" matInput placeholder="Segundo apellido" formControlName="secondLastName" autocomplete="off" />
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">phone</mat-icon>
+            <mat-label>Telefono Celular</mat-label>
+            <input matInput placeholder="Celular" formControlName="cellPhone" autocomplete="off" required />
+            <mat-error *ngIf="infoForm.controls.cellPhone.errors?.required">El numero celular es un campo requerido.</mat-error>
+            <mat-error *ngIf="infoForm.controls.cellPhone.errors?.pattern">Ingrese un numero de celular valido.</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">tty</mat-icon>
+            <mat-label>Telefono Fijo</mat-label>
+            <input matInput placeholder="Fijo" formControlName="landLinePhone" autocomplete="off" />
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" class="px-2">
+          <mat-form-field appearance="outline" class="w-100 mt-1">
+            <mat-icon matPrefix class="mr-1 text-muted">email</mat-icon>
+            <mat-label>Email</mat-label>
+            <input matInput placeholder="Email" formControlName="email" autocomplete="off" required readonly />
+            <mat-error *ngIf="infoForm.controls.email.errors?.required">El correo electrónico es obligatorio</mat-error>
+            <mat-error *ngIf="infoForm.controls.email.hasError('invalidEmail')">Dirección de correo electrónico no válida</mat-error>
+          </mat-form-field>
+        </div>
 
-            <div class="text-center mt-2">
-                <button mat-raised-button color="primary" type="submit" class="uppercase">Update profile</button>
-            </div> 
-        </form>
-    </div>
-    
-    <div fxFlex="100" fxFlex.gt-sm="50" class="p-3" ngClass.sm="mt-2" ngClass.xs="mt-2">
-        <h2 class="text-muted text-center fw-600 mb-3">Password change</h2>
-        <form [formGroup]="passwordForm" (ngSubmit)="onPasswordFormSubmit(passwordForm.value)">            
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Current Password</mat-label>
-                <input matInput placeholder="Current Password" formControlName="currentPassword" type="password" minlength="6" required autocomplete="off">
-                <mat-error *ngIf="passwordForm.controls.currentPassword.errors?.required">Current Password is required</mat-error>
-                <mat-error *ngIf="passwordForm.controls.currentPassword.hasError('minlength')">Current Password isn't long enough, minimum of 6 characters</mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>New Password</mat-label>
-                <input matInput placeholder="New Password" formControlName="newPassword" type="password" minlength="6" required autocomplete="off">
-                <mat-error *ngIf="passwordForm.controls.newPassword.errors?.required">New Password is required</mat-error>
-                <mat-error *ngIf="passwordForm.controls.newPassword.hasError('minlength')">New Password isn't long enough, minimum of 6 characters</mat-error>
-            </mat-form-field> 
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Confirm New Password</mat-label>
-              <input matInput placeholder="Confirm New Password" formControlName="confirmNewPassword" type="password" required autocomplete="off">
-              <mat-error *ngIf="passwordForm.controls.confirmNewPassword.errors?.required">Confirm New Password is required</mat-error>
-              <mat-error *ngIf="passwordForm.controls.confirmNewPassword.hasError('mismatchedPasswords')">Passwords do not match</mat-error>
-            </mat-form-field>
-            <div class="text-center mt-2">
-                <button mat-raised-button color="primary" type="submit" class="uppercase">Change password</button>
-            </div>
-        </form>
-    </div>
-</div> 
+        <div class="text-center mt-2">
+          <button mat-raised-button color="primary" type="submit" class="uppercase">Actualizar Datos</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div fxFlex="100" fxFlex.gt-sm="30" class="p-3" ngClass.sm="mt-2" ngClass.xs="mt-2">
+    <h2 class="text-muted text-center fw-600 mb-3">Contraseña</h2>
+    <form [formGroup]="passwordForm" (ngSubmit)="onPasswordFormSubmit(passwordForm.value)">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Contraseña actual</mat-label>
+        <input
+          matInput
+          placeholder="Current Password"
+          formControlName="currentPassword"
+          [type]="hide ? 'password' : 'text'"
+          minlength="6"
+          required
+          autocomplete="off"
+        />
+        <mat-error *ngIf="passwordForm.controls.currentPassword.errors?.required">Contraseña actual requerida.</mat-error>
+        <mat-error *ngIf="passwordForm.controls.currentPassword.errors?.pattern">Ingrese una contraseña valida.</mat-error>
+        <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
+          <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Nueva Contraseña</mat-label>
+        <input
+          matInput
+          placeholder="New Password"
+          formControlName="newPassword"
+          [type]="hide ? 'password' : 'text'"
+          minlength="6"
+          required
+          autocomplete="off"
+        />
+        <mat-error *ngIf="passwordForm.controls.newPassword.errors?.required">Se requiere nueva contraseña</mat-error>
+        <mat-error *ngIf="passwordForm.controls.newPassword.errors?.pattern"> Ingrese una contraseña valida. </mat-error>
+        <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
+          <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Confirme Nueva Contraseña</mat-label>
+        <input
+          matInput
+          placeholder="Confirm New Password"
+          formControlName="confirmPassword"
+          [type]="hide ? 'password' : 'text'"
+          required
+          autocomplete="off"
+        />
+        <mat-error *ngIf="passwordForm.controls.confirmPassword.errors?.required">Es necesario confirmar la contraseña</mat-error>
+        <mat-error *ngIf="passwordForm.controls.confirmPassword.hasError('mismatchedPasswords')">
+          Las contraseñas no coincidenLas contraseñas no coinciden
+        </mat-error>
+        <button mat-icon-button matSuffix (click)="hide = !hide" type="button" class="text-muted">
+          <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+      <div class="text-center mt-2">
+        <button mat-raised-button color="primary" type="submit" class="uppercase">Cambiar Contraseña</button>
+      </div>
+    </form>
+  </div>
+</div>

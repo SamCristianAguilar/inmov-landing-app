@@ -48,6 +48,7 @@ import { SpinnerComponent } from './shared/spinner/spinner.component';
 import { SpinnerInterceptor } from './interceptor/spinner.interceptor';
 import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
+import { TokenInterceptor } from './theme/interceptors/token.interceptor';
 registerLocaleData(localeEs, 'es');
 @NgModule({
   declarations: [
@@ -96,6 +97,7 @@ registerLocaleData(localeEs, 'es');
     AppSettings,
     { provide: OverlayContainer, useClass: CustomOverlayContainer },
     { provide: HTTP_INTERCEPTORS, useClass: SpinnerInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     { provide: LOCALE_ID, useValue: 'es' },
   ],
   bootstrap: [AppComponent],

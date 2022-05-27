@@ -1,0 +1,92 @@
+<div fxLayout="row wrap">
+  <div fxFlex="100" fxFlex.gt-sm="100" class="p-3">
+    <h2 class="text-muted text-center fw-600 mb-3">Mis datos de ubicación</h2>
+    <form [formGroup]="locationForm" (ngSubmit)="onlocationFormSubmit(locationForm.value)" fxLayout="row wrap">
+      <div fxFlex="100" class="px-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-icon matPrefix class="mr-1 text-muted">location_on</mat-icon>
+          <mat-label>Dirección</mat-label>
+          <input matInput placeholder="Enter a location" formControlName="address" autocomplete="off" #addressAutocomplete />
+          <button
+            *ngIf="locationForm.controls.address.value"
+            mat-button
+            matSuffix
+            mat-icon-button
+            (click)="locationForm.controls.address.setValue(null)"
+            type="button"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-error *ngIf="locationForm.controls.address.errors?.required"> Campo requerido</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" class="px-2 mb-4">
+        <agm-map [latitude]="lat" [longitude]="lng" [zoom]="zoom" [mapTypeControl]="true" [fullscreenControl]="true" (mapClick)="onMapClick($event)">
+          <agm-marker [latitude]="lat" [longitude]="lng" [markerDraggable]="true" (markerClick)="onMarkerClick($event)"></agm-marker>
+        </agm-map>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Departamento</mat-label>
+          <input [matAutocomplete]="auto" type="text" matInput formControlName="departament" required />
+          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFnDepartament" (optionSelected)="onSelectCity($event)">
+            <mat-option *ngFor="let option of filteredOptionsDepartaments | async" [value]="option">
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="locationForm.controls.departament?.hasError('required')"> Campor requerido </mat-error>
+          <mat-error *ngIf="locationForm.controls.departament?.hasError('incorrect')"> Seleccione una opción correcta.</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Ciudad</mat-label>
+          <input [matAutocomplete]="auto1" type="text" matInput formControlName="city" required />
+          <mat-autocomplete #auto1="matAutocomplete" [displayWith]="displayFnCity">
+            <mat-option *ngFor="let option of filteredOptionsCities | async" [value]="option">
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="locationForm.controls.city?.hasError('required')"> Campo requerido </mat-error>
+          <mat-error *ngIf="locationForm.controls.city?.hasError('incorrect')"> Seleccione una opción correcta.</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Zona - Localidad</mat-label>
+          <input matInput="matInput" formControlName="zone" required="required" autocomplete="off" />
+          <mat-error *ngIf="locationForm.controls.zone?.errors?.required"> Campo requerido</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Barrio</mat-label>
+          <input matInput="matInput" placeholder="Zona" formControlName="neighborhood" required="required" autocomplete="off" />
+          <mat-error *ngIf="locationForm.controls.neighborhood.errors?.required"> Campo requerido</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-xs="50" class="px-2">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Código Postal</mat-label>
+          <input matInput="matInput" placeholder="Zona" formControlName="zipCode" autocomplete="off" />
+          <mat-error *ngIf="locationForm.controls.zipCode?.hasError('pattern')"> Ingrese un codigo postal valido</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-xs="100" class="px-2">
+        <mat-form-field appearance="outline" class="w-100 pb-0">
+          <mat-label>Detalles de la ubicación</mat-label>
+          <textarea matInput placeholder="Detalles" formControlName="details" rows="6"></textarea>
+        </mat-form-field>
+        <span *ngIf="!locationForm.controls.details.value">
+          Ingrese datos tales como nombre de edificio o conjunto, piso, numero de apto y/o los detalles que ayuden a dar un mejor detalle de su
+          ubicación
+        </span>
+      </div>
+      <div fxFlex="100" class="mt-3 p-2" fxLayoutAlign="end center">
+        <button mat-raised-button color="primary" type="submit" class="uppercase">Guardar información</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -10,7 +10,7 @@ import { CompareOverviewComponent } from 'src/app/shared/compare-overview/compar
 import { EmbedVideoService } from 'ngx-embed-video';
 import { emailValidator } from 'src/app/theme/utils/app-validators';
 import { PropertyService } from 'src/app/services/property.service';
-import { forRentContractsRes, forSaleContractsRes, propertyResponse } from 'src/app/models/models';
+import { ForRentContractsRes, ForSaleContractsRes, PropertyResponse } from 'src/app/models/models';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
@@ -31,7 +31,7 @@ export class PropertyComponent implements OnInit {
   public config: SwiperConfigInterface = {};
   public config2: SwiperConfigInterface = {};
   private sub: any;
-  public property: propertyResponse;
+  public property: PropertyResponse;
   public settings: Settings;
   public embedVideo: any;
   public relatedProperties: Property[];
@@ -121,7 +121,7 @@ export class PropertyComponent implements OnInit {
       .subscribe();
   }
 
-  getPriceCurrent(c1: forRentContractsRes[], c2: forSaleContractsRes[]): string {
+  getPriceCurrent(c1: ForRentContractsRes[], c2: ForSaleContractsRes[]): string {
     const contract1 = c1.filter((element) => element.state.name == 'Activo');
     const contract2 = c2.filter((element) => element.state.name == 'Activo');
     console.log(contract1, contract2);

@@ -4,7 +4,7 @@ import { Settings, AppSettings } from '../../app.settings';
 
 import { AppService } from '../../app.service';
 import { CompareOverviewComponent } from '../compare-overview/compare-overview.component';
-import { propertyResponse } from 'src/app/models/models';
+import { PropertyResponse } from 'src/app/models/models';
 import { environment } from 'src/environments/environment';
 import { PropertyService } from 'src/app/services/property.service';
 
@@ -14,7 +14,7 @@ import { PropertyService } from 'src/app/services/property.service';
   styleUrls: ['./property-item.component.scss'],
 })
 export class PropertyItemComponent implements OnInit {
-  @Input() property: propertyResponse;
+  @Input() property: PropertyResponse;
   @Input() viewType: string = 'grid';
   @Input() viewColChanged: boolean = false;
   @Input() fullWidthPage: boolean = true;

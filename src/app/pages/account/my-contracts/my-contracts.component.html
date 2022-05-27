@@ -1,0 +1,59 @@
+<mat-form-field appearance="outline" class="w-100">
+  <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filtrar propiedades" autocomplete="off" />
+</mat-form-field>
+<div class="table-wrapper">
+  <table mat-table [dataSource]="dataSource" matSort class="w-100">
+    <!-- ID Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+      <td mat-cell *matCellDef="let contract">{{ contract.id }}</td>
+    </ng-container>
+
+    <!-- Title Column -->
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Contrato</th>
+      <td mat-cell *matCellDef="let contract">{{ contract.contractValue | currency: 'COP':'symbol' }}</td>
+    </ng-container>
+
+    <!-- Published Column -->
+    <ng-container matColumnDef="createAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Registrado en</th>
+      <td mat-cell *matCellDef="let contract">{{ contract.createAt | date: 'dd MMMM, yyyy' }}</td>
+    </ng-container>
+
+    <!-- State Column -->
+    <ng-container matColumnDef="state">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+      <td mat-cell *matCellDef="let contract">{{ contract.state.name }}</td>
+    </ng-container>
+
+    <!-- Type Column -->
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+      <td mat-cell *matCellDef="let contract">{{ contract.type.name }}</td>
+    </ng-container>
+
+    <!-- Views Column -->
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let contract">
+        <a [routerLink]="['/properties', contract.property.id]" mat-icon-button color="primary" matTooltip="Ver propiedad">
+          <mat-icon>home</mat-icon>
+        </a>
+        <a mat-icon-button color="primary" matTooltip="Ver detalles">
+          <mat-icon>visibility</mat-icon>
+        </a>
+        <a mat-icon-button color="primary" matTooltip="Descargar Contrato">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </a>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let contract; columns: displayedColumns"></tr>
+  </table>
+  <p *ngIf="dataSource?.data.length === 0" class="py-5 mb-0 text-center">Sin contratos registradas</p>
+</div>
+<mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>

@@ -11,7 +11,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { PropertyService } from 'src/app/services/property.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
-import { propertyResponse } from 'src/app/models/models';
+import { PropertyResponse } from 'src/app/models/models';
 import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
@@ -26,7 +26,7 @@ export class PropertiesComponent implements OnInit {
   public psConfig: PerfectScrollbarConfigInterface = {
     wheelPropagation: true,
   };
-  public properties: propertyResponse[];
+  public properties: PropertyResponse[];
   public viewType: string = 'grid';
   public viewCol: number = 33.3;
   public count: number = 12;

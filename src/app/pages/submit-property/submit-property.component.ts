@@ -28,6 +28,7 @@ import { MatAccordion } from '@angular/material/expansion';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MapsAPILoader } from '@agm/core';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-submit-property',
@@ -73,6 +74,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   constructor(
     public appService: AppService,
     public propertyService: PropertyService,
+    public commonService: CommonService,
     public contractService: ContractService,
     private fb: FormBuilder,
     private toastr: ToastrService,
@@ -82,11 +84,6 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   ) {}
 
   ngOnInit() {
-    this.propertyStatuses = this.appService.getPropertyStatuses();
-    // this.cities = this.appService.getCities();
-    this.neighborhoods = this.appService.getNeighborhoods();
-    this.streets = this.appService.getStreets();
-    this.typeStreets = TYPE_STREET.sort();
     this.typeContract = TYPE_CONTRACT.sort();
     this.submitForm = this.buildForm();
     this.getTypeProperty();
@@ -137,7 +134,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   getDepartament() {
-    this.propertyService
+    this.commonService
       .getAllDepartaments()
       .pipe(
         tap((res) => {
@@ -516,8 +513,6 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
     if (lng) {
       this.submitForm.controls.location.get('lng').setValue(lng);
     }
-
-    console.log(cityName, departament, locality, neighborhood, zipCode, lat, lng);
   }
 
   // mat autocomplete select cities
