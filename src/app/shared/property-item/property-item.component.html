@@ -1,8 +1,8 @@
 <mat-card class="property-item p-0" [ngClass]="[viewType + '-item', 'column-' + column]" [class.full-width-page]="fullWidthPage" fxLayout="row wrap">
   <div fxFlex="100" fxShrink="3" [fxFlex.gt-sm]="viewType == 'list' ? 40 : 100" [fxFlex.sm]="viewType == 'list' ? 50 : 100" class="thumbnail-section">
     <div fxLayout="row wrap" class="property-status">
-      <span *ngIf="property.forRentContracts?.length > 0" [style.background-color]="getStatusBgColor('Para Renta')">Para Renta</span>
-      <span *ngIf="property.forSaleContracts?.length > 0" [style.background-color]="getStatusBgColor('Para Venta')">Para Venta</span>
+      <span *ngIf="contractLabel && contractLabel == 'rent'" [style.background-color]="getStatusBgColor('Para Renta')">Para Renta</span>
+      <span *ngIf="contractLabel && contractLabel == 'sale'" [style.background-color]="getStatusBgColor('Para Venta')">Para Venta</span>
     </div>
 
     <div *ngIf="property.photos?.length == 1" class="mat-card-image w-100 m-0">
@@ -46,12 +46,8 @@
         <div fxLayout="row" fxLayoutAlign="space-between center">
           <div>
             <h3 class="primary-color price">
-              <span *ngIf="property.forSaleContracts?.length > 0">{{
-                property.forSaleContracts[0].contractValue | currency: 'COP':'symbol':'1.0'
-              }}</span>
-              <span *ngIf="property.forRentContracts?.length > 0"
-                >{{ property.forRentContracts[0].contractValue | currency: 'COP':'symbol':'1.0' }} /Mensual</span
-              >
+              <span *ngIf="contractLabel && contractLabel == 'sale'">{{ contract.contractValue | currency: 'COP':'symbol':'1.0' }}</span>
+              <span *ngIf="contractLabel && contractLabel == 'rent'">{{ contract.contractValue | currency: 'COP':'symbol':'1.0' }} /Mensual</span>
             </h3>
           </div>
           <!-- <app-rating [ratingsCount]="property.ratingsCount" [ratingsValue]="property.ratingsValue"></app-rating> -->

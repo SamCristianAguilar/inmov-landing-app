@@ -4,17 +4,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { AppService } from 'src/app/app.service';
 import { catchError, map, Observable, of, startWith, tap, throwError } from 'rxjs';
-import {
-  City,
-  ContractForRentRequest,
-  Departament,
-  InfoProperty,
-  Location,
-  Neighborhood,
-  Photos,
-  PropertyRequest,
-  Zone,
-} from 'src/app/models/models';
+import { City, ContractRequest, Departament, InfoProperty, Location, Neighborhood, Photos, PropertyRequest, Zone } from 'src/app/models/models';
 import { MatSelect } from '@angular/material/select';
 
 import { TYPE_CONTRACT, TYPE_STREET } from 'src/app/common/constants';
@@ -63,7 +53,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   public typeStreets = [];
   public lat: number = 4.647736724380013;
   public lng: number = -74.06369097792818;
-  public zoom: number = 20;
+  public zoom: number = 16;
   public alertPremiumMessage =
     'Recuerde que si marca la opción prémium esto indica forma automática que usted contrata los servicios de innovación inmobiliaria para todo lo referente a la toma fotografías y videos de su propiedad que a su vez van a ser utilizadas en nuestra plataforma.';
   private isValidEmail = /\S+@\S+\.\S+/;
@@ -248,7 +238,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
 
   public submitProperty(pathsPhotos?: string[]) {
     const value = this.submitForm.value;
-
+    console.log(value);
     const infoProperty: InfoProperty = {
       stratum: value.infoProperty.stratum,
       area: value.infoProperty.area,
@@ -283,6 +273,19 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       address: value.location.address,
       lat: value.location.lat,
       lng: value.location.lng,
+      formattedAddress: `${
+        value.location.address +
+        ', ' +
+        value.location.neighborhood.name +
+        ', ' +
+        value.location.zone +
+        ', ' +
+        value.location.zipCode +
+        ', ' +
+        value.location.city.name +
+        ', ' +
+        value.location.departament.name
+      }`,
     };
 
     let photos: Photos;
@@ -302,19 +305,20 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
       photos: photos ? photos : null,
     };
 
-    const newContract: ContractForRentRequest = {
+    const newContract: ContractRequest = {
       contractValue: value.contract.price,
       description: `Contrato para realizar el proceso de ${
         value.contract.typeContract == 'forrent' ? 'arrendar' : value.contract.typeContract == 'forsale' ? 'vender' : ''
       } la propiedad ${newProperty.title} ubicada en la dirección : ${newProperty.location.address} `,
       holder: this.idOwner,
       property: newProperty,
+      type: value.contract.typeContract == 'forrent' ? 2 : value.contract.typeContract == 'forsale' ? 1 : null,
+      state: 3,
     };
-    console.log(newContract);
     const contract = value.contract.typeContract;
-    if (contract && contract == 'forrent') {
+    if (contract) {
       this.contractService
-        .newContractForRent(newContract)
+        .newContract(newContract)
         .pipe(
           tap((res) => {
             if (res) {
@@ -323,6 +327,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
                 'Registro exitoso',
                 {
                   progressBar: true,
+                  timeOut: 10000,
                 }
               );
               this.router.navigate(['/']);
@@ -331,41 +336,13 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
           }),
           catchError((error: HttpErrorResponse): Observable<any> => {
             if (error) {
+              console.error(error);
               this.toastr.error(`${error.error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
                 progressBar: true,
-                closeButton: true,
-                disableTimeOut: true,
               });
+              const value = this.submitForm.value;
               this.horizontalStepper.reset();
-              return of(null);
-            }
-          })
-        )
-        .subscribe();
-    } else if (contract && contract == 'forsale') {
-      this.contractService
-        .newContractForSale(newContract)
-        .pipe(
-          tap((res) => {
-            if (res) {
-              this.toastr.success(
-                'Su solicitud de servicio queda pendiente para revision por parte de Innovacion inmobiliaria, una vez que se de autorización o solicite algun cambio sera notificado en su correo electronico',
-                'Registro exitoso',
-                {
-                  progressBar: true,
-                }
-              );
-              this.router.navigate(['/']);
-              this.reset();
-            }
-          }),
-          catchError((error: HttpErrorResponse): Observable<any> => {
-            if (error) {
-              this.toastr.error(`${error.error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
-                progressBar: true,
-              });
-              this.reset();
-
+              this.submitForm.patchValue(value);
               return of(null);
             }
           })
@@ -396,6 +373,7 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
         }),
         catchError((error: HttpErrorResponse): Observable<any> => {
           if (error) {
+            console.error(error);
             this.toastr.error(`${error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
               progressBar: true,
             });
@@ -449,15 +427,13 @@ export class SubmitPropertyComponent implements OnInit, AfterViewInit, OnDestroy
   public onMapClick(e: any) {
     this.lat = e.coords.lat;
     this.lng = e.coords.lng;
-    console.log(this.lat, this.lng);
     this.getAddress();
   }
   public onMarkerClick(e: any) {
-    console.log(e);
+    // console.log(e);
   }
 
   public setAddresses(result) {
-    console.log(result);
     this.submitForm.controls.location.get('city').setValue(null);
     let cityName, departament, locality, neighborhood, zipCode, lat, lng;
 

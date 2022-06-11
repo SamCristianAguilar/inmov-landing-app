@@ -4,7 +4,7 @@ import { Settings, AppSettings } from '../../app.settings';
 
 import { AppService } from '../../app.service';
 import { CompareOverviewComponent } from '../compare-overview/compare-overview.component';
-import { PropertyResponse } from 'src/app/models/models';
+import { ContractRes, PropertyResponse } from 'src/app/models/models';
 import { environment } from 'src/environments/environment';
 import { PropertyService } from 'src/app/services/property.service';
 
@@ -27,12 +27,19 @@ export class PropertyItemComponent implements OnInit {
     clickable: true,
   };
   public settings: Settings;
-  private urlBack = environment.urlBack;
+  public urlBack = environment.urlBack;
+  public contractLabel: string;
+  public contract: ContractRes;
   constructor(public appSettings: AppSettings, public appService: AppService, public propService: PropertyService) {
     this.settings = this.appSettings.settings;
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.contract = this.property?.contracts.find((contract) => contract.state.id == 1);
+    if (this.contract) {
+      this.contractLabel = this.contract.type.id == 2 ? 'rent' : this.contract.type.id == 1 ? 'sale' : null;
+    }
+  }
 
   ngAfterViewInit() {
     this.initCarousel();

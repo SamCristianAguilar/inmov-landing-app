@@ -5,9 +5,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, of, tap } from 'rxjs';
-import { Property } from 'src/app/app.models';
 import { AppService } from 'src/app/app.service';
-import { ForRentContractsRes, ForSaleContractsRes } from 'src/app/models/models';
+import { ContractRes } from 'src/app/models/models';
 import { AuthService } from 'src/app/services/auth.service';
 import { ContractService } from 'src/app/services/contract.service';
 import { PropertyService } from 'src/app/services/property.service';
@@ -20,7 +19,7 @@ import { environment } from 'src/environments/environment';
 })
 export class MyContractsComponent implements OnInit {
   displayedColumns: string[] = ['id', 'value', 'createAt', 'state', 'type', 'actions'];
-  dataSource: MatTableDataSource<ForRentContractsRes | ForSaleContractsRes>;
+  dataSource: MatTableDataSource<ContractRes>;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   private idUser: number;
@@ -60,7 +59,7 @@ export class MyContractsComponent implements OnInit {
   }
 
   public initDataSource(data: any) {
-    this.dataSource = new MatTableDataSource<ForRentContractsRes | ForSaleContractsRes>(data);
+    this.dataSource = new MatTableDataSource<ContractRes>(data);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }

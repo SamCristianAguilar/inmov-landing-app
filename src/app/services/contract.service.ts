@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ContractForRentRequest, ContractForSaleRequest } from '../models/models';
+import { ContractRequest } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
@@ -13,11 +13,8 @@ export class ContractService {
 
   private urlBack = environment.urlBack;
 
-  public newContractForRent(contract: ContractForRentRequest): Observable<any> {
-    return this.http.post(`${this.urlBack}/contract/for-rent/`, contract);
-  }
-  public newContractForSale(contract: ContractForSaleRequest): Observable<any> {
-    return this.http.post(`${this.urlBack}/contract/for-sale/`, contract);
+  public newContract(contract: ContractRequest): Observable<any> {
+    return this.http.post(`${this.urlBack}/contract/`, contract);
   }
 
   public getAllByHolder(id: number): Observable<any> {

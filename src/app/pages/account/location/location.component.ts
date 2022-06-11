@@ -67,7 +67,7 @@ export class LocationComponent implements OnInit, OnDestroy {
 
       const loc: Location = {
         address: this.locationForm.value.address,
-        formatedAddress: `${
+        formattedAddress: `${
           this.locationForm.value.address +
           ', ' +
           this.locationForm.value.neighborhood +

@@ -18,6 +18,10 @@ export class StateProperty {
   public name: string;
 }
 
+export class TypeContract {
+  public id?: number;
+  public name: string;
+}
 export class City {
   public id: number;
   public name: string;
@@ -29,18 +33,15 @@ export class Departament {
   public citys?: City[];
 }
 
-export class ContractForRentRequest {
+export class ContractRequest {
   public contractValue: number;
   public description: string;
   public holder: number;
   public property: PropertyRequest;
+  public type: number;
+  public state: number;
 }
-export class ContractForSaleRequest {
-  public contractValue: number;
-  public description: string;
-  public holder: number;
-  public property: PropertyRequest;
-}
+
 export class PropertyRequest {
   public title: string;
   public premium: boolean;
@@ -67,7 +68,7 @@ export class Location {
   public zipCode: string;
   public neighborhood: Neighborhood;
   public address: string;
-  public formatedAddress?: string;
+  public formattedAddress?: string;
   public details?: string;
   public lat: number;
   public lng: number;
@@ -105,12 +106,10 @@ export class ContractRes {
   public updateAt: Date;
   public createAt: Date;
   public id: number;
-}
-export class ForRentContractsRes extends ContractRes {
   public contractValue: string;
-}
-export class ForSaleContractsRes extends ContractRes {
-  public contractValue: string;
+  public type: TypeContract;
+  public startDate?: Date;
+  public endDate?: Date;
 }
 
 export class PropertyResponse {
@@ -124,15 +123,14 @@ export class PropertyResponse {
   public location: Location;
   public infoProperty: InfoProperty;
   public photos: PhotosResponse[];
-  public forRentContracts: ForRentContractsRes[];
-  public forSaleContracts: ForSaleContractsRes[];
+  public contracts: ContractRes[];
   public priceCurrent: string;
   public formatedAddress: string;
 }
 
 export class FilterContractReponse {
   public type: string;
-  public contract: ForRentContractsRes | ForSaleContractsRes;
+  public contract: ContractRes;
 }
 
 //User Models

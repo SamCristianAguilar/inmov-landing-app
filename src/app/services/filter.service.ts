@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FilterContractReponse, ForRentContractsRes, ForSaleContractsRes, PropertyResponse } from '../models/models';
+import { FilterContractReponse, PropertyResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
@@ -9,14 +9,17 @@ export class FilterService {
 
   public filterContract(property: PropertyResponse): FilterContractReponse {
     let contract: FilterContractReponse;
-    if (property.forRentContracts.length > 0) {
-      contract = new FilterContractReponse();
+    console.log(property);
+    const forRent = property.contracts.filter((cont) => cont.type.id == 2);
+    const forSale = property.contracts.filter((cont) => cont.type.id == 1);
+    if (forRent.length > 0) {
+      const contract = new FilterContractReponse();
       contract.type = 'Arriendo';
-      contract.contract = property.forRentContracts.find((cont) => cont.state.name == 'Activo');
-    } else if (property.forSaleContracts.length > 0) {
+      contract.contract = property.contracts.find((cont) => cont.state.name == 'Activo');
+    } else if (forSale.length > 0) {
       contract = new FilterContractReponse();
       contract.type = 'Venta';
-      contract.contract = property.forSaleContracts.find((cont) => cont.state.name == 'Activo');
+      contract.contract = property.contracts.find((cont) => cont.state.name == 'Activo');
     }
     return contract;
   }

@@ -87,6 +87,7 @@ export class RegisterComponent implements OnInit {
           }),
           catchError((error: HttpErrorResponse): Observable<any> => {
             if (error) {
+              console.error(error);
               this.toastr.error(`${error.error.message}, intentelo nuevamente`, 'Error al realizar el registro', {
                 progressBar: true,
                 closeButton: true,

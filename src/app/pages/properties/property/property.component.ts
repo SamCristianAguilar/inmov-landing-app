@@ -10,7 +10,7 @@ import { CompareOverviewComponent } from 'src/app/shared/compare-overview/compar
 import { EmbedVideoService } from 'ngx-embed-video';
 import { emailValidator } from 'src/app/theme/utils/app-validators';
 import { PropertyService } from 'src/app/services/property.service';
-import { ForRentContractsRes, ForSaleContractsRes, PropertyResponse } from 'src/app/models/models';
+import { ContractRes, PropertyResponse } from 'src/app/models/models';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
@@ -97,7 +97,7 @@ export class PropertyComponent implements OnInit {
         tap((res) => {
           this.property = res;
           console.log(res);
-          res.priceCurrent = this.getPriceCurrent(res.forRentContracts, res.forSaleContracts);
+          res.priceCurrent = this.getPriceCurrent(res.contracts);
           res.formatedAddress = `${res.location.address}, ${res.location.neighborhood.zone.name}, ${res.location.neighborhood.name}, ${res.location.zipCode},  ${res.location.neighborhood.zone.city.name}, ${res.location.neighborhood.zone.city.departament.name}`;
           setTimeout(() => {
             this.config.observer = true;
@@ -121,15 +121,12 @@ export class PropertyComponent implements OnInit {
       .subscribe();
   }
 
-  getPriceCurrent(c1: ForRentContractsRes[], c2: ForSaleContractsRes[]): string {
-    const contract1 = c1.filter((element) => element.state.name == 'Activo');
-    const contract2 = c2.filter((element) => element.state.name == 'Activo');
-    console.log(contract1, contract2);
-    if (contract1.length > 0) {
-      return contract1[0].contractValue;
-    } else if (contract2.length > 0) {
-      return contract2[0].contractValue;
+  getPriceCurrent(c1: ContractRes[]): string {
+    const contract1 = c1.find((element) => element.state.name == 'Activo');
+    if (contract1) {
+      return contract1.contractValue;
     }
+
     return null;
   }
 
