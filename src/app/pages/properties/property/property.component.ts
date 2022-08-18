@@ -1,28 +1,28 @@
-import { Component, OnInit, ViewChild, HostListener, ViewChildren, QueryList } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { AppService } from 'src/app/app.service';
-import { Property } from 'src/app/app.models';
-import { SwiperConfigInterface, SwiperDirective } from 'ngx-swiper-wrapper';
-import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
-import { AppSettings, Settings } from 'src/app/app.settings';
-import { CompareOverviewComponent } from 'src/app/shared/compare-overview/compare-overview.component';
-import { EmbedVideoService } from 'ngx-embed-video';
-import { emailValidator } from 'src/app/theme/utils/app-validators';
-import { PropertyService } from 'src/app/services/property.service';
-import { ContractRes, PropertyResponse } from 'src/app/models/models';
-import { catchError, Observable, of, tap } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
-import { environment } from 'src/environments/environment';
+import { Component, OnInit, ViewChild, HostListener, ViewChildren, QueryList } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { AppService } from "src/app/app.service";
+import { Property } from "src/app/app.models";
+import { SwiperConfigInterface, SwiperDirective } from "ngx-swiper-wrapper";
+import { PerfectScrollbarConfigInterface } from "ngx-perfect-scrollbar";
+import { AppSettings, Settings } from "src/app/app.settings";
+import { CompareOverviewComponent } from "src/app/shared/compare-overview/compare-overview.component";
+import { EmbedVideoService } from "ngx-embed-video";
+import { emailValidator } from "src/app/theme/utils/app-validators";
+import { PropertyService } from "src/app/services/property.service";
+import { ContractRes, PropertyResponse } from "src/app/models/models";
+import { catchError, Observable, of, tap } from "rxjs";
+import { HttpErrorResponse } from "@angular/common/http";
+import { ToastrService } from "ngx-toastr";
+import { environment } from "src/environments/environment";
 
 @Component({
-  selector: 'app-property',
-  templateUrl: './property.component.html',
-  styleUrls: ['./property.component.scss'],
+  selector: "app-property",
+  templateUrl: "./property.component.html",
+  styleUrls: ["./property.component.scss"],
 })
 export class PropertyComponent implements OnInit {
-  @ViewChild('sidenav') sidenav: any;
+  @ViewChild("sidenav") sidenav: any;
   @ViewChildren(SwiperDirective) swipers: QueryList<SwiperDirective>;
   public psConfig: PerfectScrollbarConfigInterface = {
     wheelPropagation: false,
@@ -56,7 +56,7 @@ export class PropertyComponent implements OnInit {
 
   ngOnInit() {
     this.sub = this.activatedRoute.params.subscribe((params) => {
-      this.getPropertyById(params['id']);
+      this.getPropertyById(params["id"]);
     });
     this.getRelatedProperties();
     this.getFeaturedProperties();
@@ -68,16 +68,16 @@ export class PropertyComponent implements OnInit {
       }
     }
     this.mortgageForm = this.fb.group({
-      principalAmount: ['', Validators.required],
-      downPayment: ['', Validators.required],
-      interestRate: ['', Validators.required],
-      period: ['', Validators.required],
+      principalAmount: ["", Validators.required],
+      downPayment: ["", Validators.required],
+      interestRate: ["", Validators.required],
+      period: ["", Validators.required],
     });
     this.contactForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', Validators.compose([Validators.required, emailValidator])],
-      phone: ['', Validators.required],
-      message: ['', Validators.required],
+      name: ["", Validators.required],
+      email: ["", Validators.compose([Validators.required, emailValidator])],
+      phone: ["", Validators.required],
+      message: ["", Validators.required],
     });
   }
 
@@ -85,7 +85,7 @@ export class PropertyComponent implements OnInit {
     this.sub.unsubscribe();
   }
 
-  @HostListener('window:resize')
+  @HostListener("window:resize")
   public onWindowResize(): void {
     window.innerWidth < 960 ? (this.sidenavOpen = false) : (this.sidenavOpen = true);
   }
@@ -111,7 +111,7 @@ export class PropertyComponent implements OnInit {
         }),
         catchError((error: HttpErrorResponse): Observable<any> => {
           if (error) {
-            this.toastr.error('Error listar cargar los datos de esta propiedad', 'Error de carga', {
+            this.toastr.error("Error listar cargar los datos de esta propiedad", "Error de carga", {
               progressBar: true,
             });
             return of(null);
@@ -122,7 +122,7 @@ export class PropertyComponent implements OnInit {
   }
 
   getPriceCurrent(c1: ContractRes[]): string {
-    const contract1 = c1.find((element) => element.state.name == 'Activo');
+    const contract1 = c1.find((element) => element.state.name == "Activo");
     if (contract1) {
       return contract1.contractValue;
     }
@@ -183,7 +183,7 @@ export class PropertyComponent implements OnInit {
 
   public selectImage(index: number) {
     this.swipers.forEach((swiper) => {
-      if (swiper['elementRef'].nativeElement.id == 'main-carousel') {
+      if (swiper["elementRef"].nativeElement.id == "main-carousel") {
         swiper.setIndex(index);
       }
     });
@@ -191,15 +191,15 @@ export class PropertyComponent implements OnInit {
 
   public onIndexChange(index: number) {
     this.swipers.forEach((swiper) => {
-      let elem = swiper['elementRef'].nativeElement;
-      if (elem.id == 'small-carousel') {
+      let elem = swiper["elementRef"].nativeElement;
+      if (elem.id == "small-carousel") {
         swiper.setIndex(index);
         for (let i = 0; i < elem.children[0].children.length; i++) {
           const element = elem.children[0].children[i];
-          if (element.classList.contains('thumb-' + index)) {
-            element.classList.add('active-thumb');
+          if (element.classList.contains("thumb-" + index)) {
+            element.classList.add("active-thumb");
           } else {
-            element.classList.remove('active-thumb');
+            element.classList.remove("active-thumb");
           }
         }
       }
@@ -235,7 +235,7 @@ export class PropertyComponent implements OnInit {
   }
 
   public getAgent(agentId: number = 1) {
-    var ids = [1, 2, 3, 4, 5]; //agent ids
+    const ids = [1, 2, 3, 4, 5]; //agent ids
     agentId = ids[Math.floor(Math.random() * ids.length)]; //random agent id
     this.agent = this.appService.getAgents().filter((agent) => agent.id == agentId)[0];
   }
@@ -248,10 +248,10 @@ export class PropertyComponent implements OnInit {
 
   public onMortgageFormSubmit(values: Object) {
     if (this.mortgageForm.valid) {
-      var principalAmount = values['principalAmount'];
-      var down = values['downPayment'];
-      var interest = values['interestRate'];
-      var term = values['period'];
+      const principalAmount = values["principalAmount"];
+      const down = values["downPayment"];
+      const interest = values["interestRate"];
+      const term = values["period"];
       this.monthlyPayment = this.calculateMortgage(principalAmount, down, interest / 100 / 12, term * 12).toFixed(2);
     }
   }
