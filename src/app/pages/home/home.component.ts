@@ -1,27 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { Settings, AppSettings } from '../../app.settings';
-import { AppService } from '../../app.service';
-import { Property, Pagination, Location } from '../../app.models';
-import { filter, map } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { PropertyService } from 'src/app/services/property.service';
-import { FilterService } from 'src/app/services/filter.service';
-import { PropertyResponse } from 'src/app/models/models';
+import { Component, OnInit } from "@angular/core";
+import { Settings, AppSettings } from "../../app.settings";
+import { AppService } from "../../app.service";
+import { Property, Pagination, Location } from "../../app.models";
+import { filter, map } from "rxjs/operators";
+import { Subscription } from "rxjs";
+import { MediaChange, MediaObserver } from "@angular/flex-layout";
+import { debounceTime, distinctUntilChanged } from "rxjs/operators";
+import { PropertyService } from "src/app/services/property.service";
+import { FilterService } from "src/app/services/filter.service";
+import { PropertyResponse } from "src/app/models/models";
+import { StateContractEnum } from "src/app/common/enums/state-contract.enum";
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+  selector: "app-home",
+  templateUrl: "./home.component.html",
+  styleUrls: ["./home.component.scss"],
 })
 export class HomeComponent implements OnInit {
   watcher: Subscription;
-  activeMediaQuery = '';
+  activeMediaQuery = "";
 
   public slides = [];
   public properties: PropertyResponse[];
-  public viewType: string = 'grid';
+  public viewType: string = "grid";
   public viewCol: number = 25;
   public count: number = 8;
   public sort: string;
@@ -50,11 +51,11 @@ export class HomeComponent implements OnInit {
       )
       .subscribe((change: MediaChange) => {
         // console.log(change)
-        if (change.mqAlias == 'xs') {
+        if (change.mqAlias == "xs") {
           this.viewCol = 100;
-        } else if (change.mqAlias == 'sm') {
+        } else if (change.mqAlias == "sm") {
           this.viewCol = 50;
-        } else if (change.mqAlias == 'md') {
+        } else if (change.mqAlias == "md") {
           this.viewCol = 33.3;
         } else {
           this.viewCol = 25;
@@ -86,16 +87,17 @@ export class HomeComponent implements OnInit {
   }
 
   public getProperties() {
-    this.propertyService.getProperties('Activo').subscribe((data) => {
+    this.propertyService.getProperties(StateContractEnum.EnPublicacion).subscribe((data) => {
       if (this.properties && this.properties.length > 0) {
         this.settings.loadMore.page++;
         this.pagination.page = this.settings.loadMore.page;
       }
-      let result = this.filterData(data);
+      console.log(data);
+      let result = this.filterData(data.filter((aux) => aux.photos.length > 0));
       if (result.data.length == 0) {
         this.properties.length = 0;
         this.pagination = new Pagination(1, this.count, null, 2, 0, 0);
-        this.message = 'No se han encontrado resultados';
+        this.message = "No se han encontrado resultados";
         return false;
       }
       if (this.properties && this.properties.length > 0) {

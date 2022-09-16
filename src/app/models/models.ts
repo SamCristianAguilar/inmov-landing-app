@@ -38,18 +38,27 @@ export class ContractRequest {
   public description: string;
   public holder: number;
   public property: PropertyRequest;
-  public type: number;
-  public state: number;
+  public type: string;
+  public state: string;
 }
 
 export class PropertyRequest {
-  public title: string;
+  public id?: number;
+  public uuid?: string;
+  public title?: string;
   public premium: boolean;
-  public typeProperty: TypeProperty;
-  public ownerId: number;
-  public infoProperty: InfoProperty;
+  public createAt?: Date;
+  public updateAt?: Date;
+  public type: TypeProperty;
+  public owner?: Owner;
+  public ownerId?: number;
   public location: Location;
-  public photos: Photos;
+  public infoProperty: InfoProperty;
+  public photos: PhotosResponse[] | Photos;
+  public contracts?: ContractRes[];
+  public formattedAddress?: string;
+  public contractValueSale?: number;
+  public contractValueRent?: number;
 }
 
 export class InfoProperty {
@@ -154,10 +163,10 @@ export class Role {
 }
 
 export enum UserRole {
-  Admin = 'Administrador',
-  Cliente = 'Cliente',
-  Avaluos = 'Avaluos',
-  Master = 'Master',
+  Admin = "Administrador",
+  Cliente = "Cliente",
+  Avaluos = "Avaluos",
+  Master = "Master",
 }
 
 export class AccessDataReq {
