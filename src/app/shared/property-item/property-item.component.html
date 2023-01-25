@@ -1,8 +1,10 @@
-<mat-card class="property-item p-0" [ngClass]="[viewType + '-item', 'column-' + column]" [class.full-width-page]="fullWidthPage" fxLayout="row wrap">
-  <div fxFlex="100" fxShrink="3" [fxFlex.gt-sm]="viewType == 'list' ? 40 : 100" [fxFlex.sm]="viewType == 'list' ? 50 : 100" class="thumbnail-section">
+<mat-card class="property-item p-0" [ngClass]="[viewType + '-item', 'column-' + column]"
+  [class.full-width-page]="fullWidthPage" fxLayout="row wrap">
+  <div fxFlex="100" fxShrink="3" [fxFlex.gt-sm]="viewType == 'list' ? 40 : 100"
+    [fxFlex.sm]="viewType == 'list' ? 50 : 100" class="thumbnail-section">
     <div fxLayout="row wrap" class="property-status">
-      <span *ngIf="contractLabel && contractLabel == 'rent'" [style.background-color]="getStatusBgColor('Para Renta')">Para Renta</span>
-      <span *ngIf="contractLabel && contractLabel == 'sale'" [style.background-color]="getStatusBgColor('Para Venta')">Para Venta</span>
+      <span [style.background-color]="getStatusBgColor('Para Renta')">Para Renta</span>
+      <!-- <span [style.background-color]="getStatusBgColor('Para Venta')">Para Venta</span> -->
     </div>
 
     <div *ngIf="property.photos?.length == 1" class="mat-card-image w-100 m-0">
@@ -17,8 +19,12 @@
           </div>
         </div>
         <div class="swiper-pagination white"></div>
-        <button mat-icon-button class="swiper-button-prev swipe-arrow"><mat-icon class="mat-icon-lg">keyboard_arrow_left</mat-icon></button>
-        <button mat-icon-button class="swiper-button-next swipe-arrow"><mat-icon class="mat-icon-lg">keyboard_arrow_right</mat-icon></button>
+        <button mat-icon-button class="swiper-button-prev swipe-arrow">
+          <mat-icon class="mat-icon-lg">keyboard_arrow_left</mat-icon>
+        </button>
+        <button mat-icon-button class="swiper-button-next swipe-arrow">
+          <mat-icon class="mat-icon-lg">keyboard_arrow_right</mat-icon>
+        </button>
       </div>
     </div>
 
@@ -31,7 +37,8 @@
       </button>
     </div>
   </div>
-  <div fxFlex="100" [fxFlex.gt-sm]="viewType == 'list' ? 60 : 100" [fxFlex.sm]="viewType == 'list' ? 50 : 100" class="p-3">
+  <div fxFlex="100" [fxFlex.gt-sm]="viewType == 'list' ? 60 : 100" [fxFlex.sm]="viewType == 'list' ? 50 : 100"
+    class="p-3">
     <div fxLayout="column" fxLayoutAlign="start stretch" class="h-100">
       <mat-card-content class="mb-0">
         <h1 class="title">
@@ -46,8 +53,10 @@
         <div fxLayout="row" fxLayoutAlign="space-between center">
           <div>
             <h3 class="primary-color price">
-              <span *ngIf="contractLabel && contractLabel == 'sale'">{{ contract.contractValue | currency: 'COP':'symbol':'1.0' }}</span>
-              <span *ngIf="contractLabel && contractLabel == 'rent'">{{ contract.contractValue | currency: 'COP':'symbol':'1.0' }} /Mensual</span>
+              <span *ngIf="contractLabel && contractLabel == 'sale'">{{ contract.contractValue | currency:
+                'COP':'symbol':'1.0' }}</span>
+              <span *ngIf="contractLabel && contractLabel == 'rent'">{{ contract.contractValue | currency:
+                'COP':'symbol':'1.0' }} /Mensual</span>
             </h3>
           </div>
           <!-- <app-rating [ratingsCount]="property.ratingsCount" [ratingsValue]="property.ratingsValue"></app-rating> -->
@@ -79,7 +88,8 @@
           <span class="mx-2">{{ property.createAt | date: 'dd MMMM, yyyy' }}</span>
         </p>
         <div>
-          <a [routerLink]="['/properties', property.id]" mat-stroked-button color="primary" class="uppercase">Detalles</a>
+          <a [routerLink]="['/properties', property.id]" mat-stroked-button color="primary"
+            class="uppercase">Detalles</a>
         </div>
       </mat-card-actions>
     </div>
